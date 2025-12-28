@@ -77,6 +77,7 @@ export interface UserState {
 }
 
 export interface LeaderboardUser {
+  displayPoints: any;
   id: string;
   name: string;
   points: number;
