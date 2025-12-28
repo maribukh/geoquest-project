@@ -1,0 +1,8 @@
+{
+  "name": "GeoQuest AI - Kutaisi",
+  "description": "An interactive, gamified city guide for Kutaisi, Georgia powered by Gemini AI.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
