@@ -734,7 +734,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'weihenstephan',
     name: 'Weihenstephan / Beer Museum',
     category: 'dining',
-    position: { lat: 42.2605, lng: 42.6905 },
+    position: { lat: 42.26972981215626, lng: 42.69843111049078 },
     description: 'Beer Museum Kutaisi.',
     hints: [],
     facts: ['A spot for true beer lovers.', 'Authentic German brews.'],
