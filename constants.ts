@@ -55,6 +55,7 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇬🇪',
     title: 'Local Legend',
     badgeIcon: '🏔️',
+    displayPoints: undefined,
   },
   {
     id: '2',
@@ -65,6 +66,7 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇬🇧',
     title: 'Photo Hunter',
     badgeIcon: '📸',
+    displayPoints: undefined,
   },
   {
     id: '3',
@@ -75,6 +77,7 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇺🇸',
     title: 'Foodie',
     badgeIcon: '🥟',
+    displayPoints: undefined,
   },
   {
     id: '4',
@@ -84,6 +87,7 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇩🇪',
     title: 'Wine Expert',
     badgeIcon: '🍇',
+    displayPoints: undefined,
   },
   {
     id: '5',
@@ -93,6 +97,7 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇵🇱',
     title: 'Explorers',
     badgeIcon: '🧭',
+    displayPoints: undefined,
   },
   {
     id: '6',
@@ -102,6 +107,7 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇬🇪',
     title: 'Musician',
     badgeIcon: '🎶',
+    displayPoints: undefined,
   },
   {
     id: '7',
@@ -111,6 +117,7 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇺🇦',
     title: 'Zen Master',
     badgeIcon: '🍵',
+    displayPoints: undefined,
   },
 ];
 
@@ -287,13 +294,11 @@ export const REWARDS: Coupon[] = [
 ];
 
 export const INITIAL_LANDMARKS: Landmark[] = [
-  // --- HOTEL (YOUR APARTMENT) ---
   {
     id: 'host_hotel',
     name: 'City Centre Apartment - Mari',
     category: 'hotel',
-    // PRECISE: Tsereteli St 6, right by Karvasla shopping center
-    position: { lat: 42.27182, lng: 42.70515 },
+    position: { lat: 42.26957831490275, lng: 42.7043414410688 },
     description:
       'A historic 19th-century home (est. 1875) with exquisite carved ceilings. Located at Tsereteli 6, right next to Karvasla.',
     riddle:
@@ -323,7 +328,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     name: 'Colchis Fountain',
     category: 'quest',
     // PRECISE: Main Square center
-    position: { lat: 42.27145, lng: 42.70725 },
+    position: { lat: 42.2714469795705, lng: 42.705411642452056 },
     description:
       'The city symbol inaugurated in 2011, adorned with gilded sculptures of animals from the Bronze Age (3rd-2nd century BC).',
     riddle:
@@ -347,8 +352,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'meskhishvili_theatre',
     name: 'City Theatre (L. Meskhishvili)',
     category: 'quest',
-    // PRECISE: Facing the Main Square
-    position: { lat: 42.2718, lng: 42.7079 },
+    position: { lat: 42.27238980437894, lng: 42.70592267924879 },
     description:
       'One of the oldest dramatic theatres in Georgia (1861), featuring Renaissance architecture with columns and arched windows.',
     riddle:
@@ -372,8 +376,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'white_bridge',
     name: 'White Bridge',
     category: 'quest',
-    // PRECISE: Center of the bridge
-    position: { lat: 42.2703, lng: 42.701 },
+    position: { lat: 42.26885100021315, lng: 42.7003048239845 },
     description:
       'A 19th-century symbol of Kutaisi over the Rioni River, now enhanced with transparent glass panels.',
     riddle:
@@ -397,8 +400,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'cable_car',
     name: 'Kutaisi Cable Car',
     category: 'quest',
-    // PRECISE: Lower station entrance in the park
-    position: { lat: 42.2707, lng: 42.7017 },
+    position: { lat: 42.26973915921473, lng: 42.70077391049079 },
     description:
       'A vintage aerial tramway connecting the river bank to the amusement park on the hill.',
     riddle:
@@ -422,8 +424,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'art_gallery',
     name: 'Kakabadze Art Gallery',
     category: 'quest',
-    // PRECISE: Rustaveli Ave 8
-    position: { lat: 42.2702, lng: 42.7055 },
+    position: { lat: 42.2708157611456, lng: 42.70093795337343 },
     description:
       'A hidden gem in the heart of Kutaisi housing original works by Pirosmani and Kakabadze.',
     riddle:
@@ -472,8 +473,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'botanical_garden',
     name: 'Kutaisi Botanical Garden',
     category: 'quest',
-    // PRECISE: Entrance area
-    position: { lat: 42.2762, lng: 42.7062 },
+    position: { lat: 42.28526523633019, lng: 42.71354600971563 },
     description:
       'A peaceful retreat on the right bank of Rioni, famous for a chapel inside a living tree.',
     riddle:
@@ -497,8 +497,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'history_museum',
     name: 'History Museum',
     category: 'quest',
-    // PRECISE: Pushkin St
-    position: { lat: 42.2696, lng: 42.7032 },
+    position: { lat: 42.2690870113976, lng: 42.70403729364274 },
     description:
       'A treasure chest established in 1912, holding 200,000 artifacts.',
     riddle:
@@ -640,7 +639,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'kutaisi_airport',
     name: 'Kutaisi International Airport',
     category: 'quest',
-    position: { lat: 42.1765, lng: 42.4824 },
+    position: { lat: 42.18220167652388, lng: 42.46546252398099 },
     description: 'A modern gateway designed by UN Studio.',
     riddle: 'I am the red and white bridge to the sky. I never sleep.',
     hints: [
@@ -659,13 +658,11 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     mapLink: 'https://maps.app.goo.gl/3Jg5jX8s8x8x8x8x',
   },
 
-  // --- RESTAURANTS (Dining) - Refined Locations ---
   {
     id: 'palaty',
     name: 'Palaty',
     category: 'dining',
-    // Pushkin St II Lane
-    position: { lat: 42.2706, lng: 42.7011 },
+    position: { lat: 42.269134571136476, lng: 42.70212192583241 },
     description: 'Everything is tasty 😍. Walk takes 4 minutes.',
     hints: [],
     facts: [
@@ -684,8 +681,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'sisters',
     name: 'Sisters (Debi)',
     category: 'dining',
-    // Newport St
-    position: { lat: 42.2708, lng: 42.7014 },
+    position: { lat: 42.272107310387554, lng: 42.7042941104909 },
     description: 'Cozy vintage atmosphere near the White Bridge.',
     hints: [],
     facts: [
@@ -704,14 +700,10 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'papavero',
     name: 'Papavero',
     category: 'dining',
-    // Near Fountain
-    position: { lat: 42.2712, lng: 42.7073 },
+    position: { lat: 42.27008413689432, lng: 42.702086539326224 },
     description: 'Good atmosphere, tasty wine 🍷, pizza 🍕. 6 minute walk.',
     hints: [],
-    facts: [
-      'Located right near the Colchis Fountain.',
-      'Live music in the evenings.',
-    ],
+    facts: ['Live music in the evenings.'],
     isUnlocked: true,
     image:
       'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
@@ -724,8 +716,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'hacker_pschorr',
     name: 'Hacker-Pschorr Kutaisi',
     category: 'dining',
-    // Near Museum
-    position: { lat: 42.2702, lng: 42.7035 },
+    position: { lat: 42.2691214389555, lng: 42.698015254667794 },
     description:
       'If you love beer 🍻. National Georgian food well done. 11 min walk.',
     hints: [],
@@ -757,8 +748,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'gallery_terrace',
     name: 'Gallery Terrace',
     category: 'dining',
-    // Near Bagrati
-    position: { lat: 42.277, lng: 42.7038 },
+    position: { lat: 42.27089490550877, lng: 42.701525310490965 },
     description:
       'Beautiful view on Bagrati Cathedral, romantic 💕. 5 min walk.',
     hints: [],
@@ -775,7 +765,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'coffee_bean',
     name: 'Coffee Bean',
     category: 'dining',
-    position: { lat: 42.272, lng: 42.706 },
+    position: { lat: 42.269986567781515, lng: 42.70268732430206 },
     description:
       'Want some coffee or tea while walking in the centre? ☕️ 2 min walk.',
     hints: [],
@@ -791,7 +781,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'foe_foe',
     name: 'Tea House Foe-Foe',
     category: 'dining',
-    position: { lat: 42.2716, lng: 42.7065 },
+    position: { lat: 42.270157149266076, lng: 42.705663508214734 },
     description: 'Good desserts 💕 and tea. 4 min walk.',
     hints: [],
     facts: ['Famous for its artistic interior.', 'Try the waffles.'],
@@ -805,8 +795,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'cafe_argo',
     name: 'Cafe Argo',
     category: 'dining',
-    // By river
-    position: { lat: 42.2702, lng: 42.7012 },
+    position: { lat: 42.2703154061211, lng: 42.700049495149244 },
     description: 'On the banks of the Rioni River 🌉, tasty. 7 min walk.',
     hints: [],
     facts: ['Riverside dining.', 'Relaxing sound of the water.'],
@@ -820,7 +809,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'baraka',
     name: 'Baraka',
     category: 'dining',
-    position: { lat: 42.2718, lng: 42.7075 },
+    position: { lat: 42.2707551619069, lng: 42.70590196816159 },
     description: 'Delicious Georgian cuisine. 4 min walk.',
     hints: [],
     facts: ['Large portions.', 'Very popular with locals.'],
