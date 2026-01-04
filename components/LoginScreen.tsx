@@ -68,9 +68,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className='fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 overflow-hidden'>
-      {/* Animated Background Slideshow */}
-      <div className='absolute inset-0 overflow-hidden'>
+    <div className='relative w-full min-h-[100dvh] bg-slate-950 overflow-hidden flex flex-col'>
+      {/* BACKGROUND LAYERS - FIXED */}
+      <div className='fixed inset-0 z-0'>
         {backgrounds.map((bg, index) => (
           <div
             key={index}
@@ -94,7 +94,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         ))}
 
         {/* Animated Grid Pattern */}
-        <div className='absolute inset-0 opacity-10'>
+        <div className='absolute inset-0 opacity-10 pointer-events-none'>
           <div
             className='absolute inset-0'
             style={{
@@ -104,30 +104,31 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             }}
           />
         </div>
+
+        {/* Floating Particles */}
+        <div className='absolute inset-0 pointer-events-none'>
+          {[...Array(15)].map((_, i) => (
+            <div
+              key={i}
+              className='absolute w-[2px] h-[2px] bg-emerald-400/30 rounded-full animate-float'
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${i * 0.5}s`,
+                animationDuration: `${Math.random() * 10 + 10}s`,
+              }}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Floating Particles */}
-      <div className='absolute inset-0'>
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className='absolute w-[2px] h-[2px] bg-emerald-400/30 rounded-full animate-float'
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${i * 0.5}s`,
-              animationDuration: `${Math.random() * 10 + 10}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Main Content */}
-      <div className='relative z-10 w-full h-full flex flex-col items-center justify-center p-6'>
-        <div className='w-full max-w-md animate-float-in'>
-          {/* Logo Section - Exploration Theme */}
-          <div className='text-center mb-10'>
-            <div className='relative inline-block mb-8'>
+      {/* CONTENT SCROLLABLE CONTAINER */}
+      <div className='relative z-10 w-full flex-1 flex flex-col items-center justify-center p-6 overflow-y-auto no-scrollbar pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]'>
+        {/* Wrapper to ensure vertical centering on large screens but scrolling on small ones */}
+        <div className='w-full max-w-md my-auto flex flex-col items-center animate-float-in py-8'>
+          {/* Logo Section */}
+          <div className='text-center mb-8 md:mb-10'>
+            <div className='relative inline-block mb-6 md:mb-8 scale-90 md:scale-100'>
               {/* Outer Glow */}
               <div className='absolute -inset-4 bg-gradient-to-r from-emerald-500/30 via-cyan-500/30 to-blue-500/30 rounded-full blur-2xl animate-pulse' />
 
@@ -166,14 +167,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
               <div className='absolute -inset-8 border border-cyan-400/10 rounded-full animate-ping-slower' />
             </div>
 
-            <h1 className='text-5xl font-bold text-white mb-3 tracking-tight bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300 bg-clip-text text-transparent'>
+            <h1 className='text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight bg-gradient-to-r from-emerald-300 via-cyan-300 to-blue-300 bg-clip-text text-transparent'>
               GeoExplorer
             </h1>
 
-            <div className='inline-flex items-center gap-4 px-6 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10'>
+            <div className='inline-flex items-center gap-3 md:gap-4 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10'>
               <div className='flex items-center gap-2'>
                 <div className='w-2 h-2 rounded-full bg-emerald-400 animate-pulse' />
-                <span className='text-sm font-semibold text-emerald-300 tracking-wider'>
+                <span className='text-xs md:text-sm font-semibold text-emerald-300 tracking-wider'>
                   {backgrounds[bgIndex].location}
                 </span>
               </div>
@@ -185,7 +186,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           </div>
 
           {/* Login Card */}
-          <div className='bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl p-8 space-y-6'>
+          <div className='w-full bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl p-6 md:p-8 space-y-5 md:space-y-6'>
             {/* Location Progress */}
             <div className='flex items-center justify-between mb-2'>
               <div className='text-sm text-white/70'>Discovering Kutaisi</div>
@@ -203,11 +204,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
             </div>
 
             {/* Buttons */}
-            <div className='space-y-4 pt-2'>
+            <div className='space-y-3 md:space-y-4 pt-2'>
               <button
                 onClick={handleLogin}
                 disabled={loading}
-                className='w-full group relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
+                className='w-full group relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg'
               >
                 <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700' />
                 <div className='relative px-6 py-4 flex items-center justify-center gap-3'>
@@ -278,8 +279,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                   ))}
                 </div>
                 <div className='text-right'>
-                  <div className='text-xs text-white/40 font-mono'>v2.1.0</div>
-                  <div className='text-xs text-emerald-300/70 font-medium'>
+                  <div className='text-[10px] md:text-xs text-white/40 font-mono'>
+                    v2.1.0
+                  </div>
+                  <div className='text-[10px] md:text-xs text-emerald-300/70 font-medium'>
                     By MariBukh
                   </div>
                 </div>
@@ -288,8 +291,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           </div>
 
           {/* Hint Text */}
-          <div className='mt-8 text-center'>
-            <p className='text-sm text-white/50'>
+          <div className='mt-8 text-center px-4'>
+            <p className='text-xs md:text-sm text-white/50'>
               Begin your adventure through historic Kutaisi
             </p>
           </div>

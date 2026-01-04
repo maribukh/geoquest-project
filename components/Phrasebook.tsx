@@ -33,18 +33,24 @@ const Phrasebook: React.FC = () => {
     setLoadingIndex(index);
 
     try {
+      // Initialize AudioContext with specific sample rate for Gemini TTS (usually 24kHz)
+      // This prevents "chipmunk" speed issues on some devices
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext ||
-          (window as any).webkitAudioContext)();
+        const AudioCtor =
+          window.AudioContext || (window as any).webkitAudioContext;
+        audioContextRef.current = new AudioCtor({ sampleRate: 24000 });
       }
 
       const ctx = audioContextRef.current;
-      // Resume context if suspended (browser policy)
+
+      // Critical for iOS/Android: Resume context on user interaction
       if (ctx.state === 'suspended') {
         await ctx.resume();
       }
 
       const audioBufferData = await generatePhraseAudio(text);
+
+      // Decode audio data (browser handles resampling if needed, but context is already matched)
       const audioBuffer = await ctx.decodeAudioData(audioBufferData);
 
       const source = ctx.createBufferSource();
@@ -62,7 +68,7 @@ const Phrasebook: React.FC = () => {
       console.error('Audio playback error:', error);
       setLoadingIndex(null);
       setPlayingIndex(null);
-      alert('Audio unavailable. Check connection.');
+      alert('Audio error. Please check your internet or try again.');
     }
   };
 
@@ -103,9 +109,6 @@ const Phrasebook: React.FC = () => {
         {/* Phrases List */}
         <div className='grid gap-3'>
           {filteredPhrases.map((phrase, idx) => {
-            // We use the index from the original array for state tracking if needed,
-            // or just map index if list doesn't change order dynamically in a complex way.
-            // Here simpler to just use current map index for visual state.
             const isPlaying = playingIndex === idx;
             const isLoading = loadingIndex === idx;
 
