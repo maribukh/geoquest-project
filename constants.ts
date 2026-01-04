@@ -4,22 +4,6 @@ import { Landmark, Coupon, LeaderboardUser, Legend } from './types';
 export const MAP_CENTER = { lat: 42.2715, lng: 42.706 };
 export const DEFAULT_ZOOM = 16;
 
-// PRECISE WALKING ROUTE (From Tsereteli 6 -> Fountain -> White Bridge -> Bagrati)
-export const WALKING_ROUTE = [
-  { lat: 42.27182, lng: 42.70515 }, // START: Hotel (Tsereteli 6)
-  { lat: 42.2716, lng: 42.7055 }, // Passing Karvasla
-  { lat: 42.27145, lng: 42.70725 }, // Colchis Fountain (Main Square)
-  { lat: 42.271, lng: 42.707 }, // Crossing square south
-  { lat: 42.2702, lng: 42.7035 }, // Pushkin Street (Museum area)
-  { lat: 42.2705, lng: 42.7018 }, // Park near Cable Car
-  { lat: 42.2703, lng: 42.701 }, // White Bridge
-  { lat: 42.2704, lng: 42.7005 }, // Cross river to left bank
-  { lat: 42.2715, lng: 42.701 }, // Walking up Newport St
-  { lat: 42.274, lng: 42.7025 }, // Winding cobbled street
-  { lat: 42.276, lng: 42.7035 }, // Approaching hill
-  { lat: 42.2773, lng: 42.7043 }, // FINISH: Bagrati Cathedral
-];
-
 // Georgian Phrases for Profile
 export const GEORGIAN_PHRASES = [
   // Greetings & Basics
@@ -586,7 +570,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'prometheus_cave',
     name: 'Prometheus Cave',
     category: 'quest',
-    position: { lat: 42.3768, lng: 42.601 },
+    position: { lat: 42.377110241316394, lng: 42.60048671049498 },
     description: 'A 1.4km underground wonderland discovered in 1984.',
     riddle:
       'I was hidden in darkness until 1984. My rivers flow where the sun never shines, and my stone teeth grow from the ceiling.',
@@ -727,7 +711,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'weihenstephan',
     name: 'Weihenstephan / Beer Museum',
     category: 'dining',
-    position: { lat: 42.26972981215626, lng: 42.69843111049078 },
+    position: { lat: 42.2605, lng: 42.6905 },
     description: 'Beer Museum Kutaisi.',
     hints: [],
     facts: ['A spot for true beer lovers.', 'Authentic German brews.'],

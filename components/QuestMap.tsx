@@ -5,16 +5,9 @@ import React, {
   useRef,
   useCallback,
 } from 'react';
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMap,
-  Polyline,
-} from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Landmark, Coordinates } from '../types';
-import { MAP_CENTER, DEFAULT_ZOOM, WALKING_ROUTE } from '../constants';
+import { MAP_CENTER, DEFAULT_ZOOM } from '../constants';
 import { calculateDistance } from '../utils';
 import L from 'leaflet';
 
@@ -249,7 +242,6 @@ const QuestMap: React.FC<QuestMapProps> = ({
     'all' | 'quest' | 'dining' | 'hotel'
   >('all');
   const [isMapReady, setIsMapReady] = useState(false);
-  const [showRoute, setShowRoute] = useState(true);
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(
     null
   );
@@ -688,21 +680,6 @@ const QuestMap: React.FC<QuestMapProps> = ({
               {type === 'all' ? 'All' : type === 'hotel' ? 'Stay' : type}
             </button>
           ))}
-          <button
-            onClick={() => setShowRoute(!showRoute)}
-            className={`px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold shadow-sm border border-white/60 flex items-center gap-2 transition-colors active:scale-95 whitespace-nowrap ml-1 ${
-              showRoute
-                ? 'bg-emerald-50 text-emerald-700'
-                : 'bg-white text-slate-500'
-            }`}
-          >
-            <span
-              className={`w-2 h-2 rounded-full ${
-                showRoute ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'
-              }`}
-            ></span>
-            <span>Route</span>
-          </button>
         </div>
       </div>
 
@@ -728,20 +705,6 @@ const QuestMap: React.FC<QuestMapProps> = ({
           keepBuffer={20}
           updateWhenZooming={false}
         />
-
-        {showRoute && (
-          <Polyline
-            positions={WALKING_ROUTE.map((p) => [p.lat, p.lng])}
-            pathOptions={{
-              color: '#34d399',
-              weight: 6,
-              dashArray: '15, 10',
-              opacity: 0.8,
-              lineCap: 'round',
-              className: 'animate-dash',
-            }}
-          />
-        )}
 
         <Marker
           position={[userLocation.lat, userLocation.lng]}
