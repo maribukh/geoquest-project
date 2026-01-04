@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { KUTAISI_LEGENDS } from '../constants';
 import { Legend } from '../types';

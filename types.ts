@@ -1,4 +1,3 @@
-
 export interface QuestResponse {
   location_confirmed: boolean;
   place_name: string;
@@ -31,10 +30,11 @@ export interface Landmark {
   instagram?: string;
   mapLink?: string;
   airbnbLink?: string;
-  secret_info?: { // NEW: For Hotel guests only
-      wifi?: string;
-      breakfast?: string;
-      taxi?: string;
+  secret_info?: {
+    // NEW: For Hotel guests only
+    wifi?: string;
+    breakfast?: string;
+    taxi?: string;
   };
 }
 
@@ -64,20 +64,19 @@ export enum AppView {
   CAMERA = 'CAMERA',
   PROFILE = 'PROFILE',
   SHOP = 'SHOP',
-  LEADERBOARD = 'LEADERBOARD'
+  LEADERBOARD = 'LEADERBOARD',
 }
 
 export interface UserState {
   points: number;
   level: number;
   unlockedIds: string[];
-  inventory: string[]; 
+  inventory: string[];
   redeemedCoupons: string[]; // List of Coupon IDs
   unlockedHints: string[]; // List of Landmark IDs where hint was bought
 }
 
 export interface LeaderboardUser {
-  displayPoints: any;
   id: string;
   name: string;
   points: number;
@@ -97,4 +96,6 @@ export interface ReviewData {
   userName?: string;
   avatar?: string;
   userId?: string;
+  emotion?: string; // NEW: Emotion label (e.g., "Amazing")
+  photos?: string[]; // NEW: Array of base64 image strings
 }

@@ -55,7 +55,6 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇬🇪',
     title: 'Local Legend',
     badgeIcon: '🏔️',
-    displayPoints: undefined,
   },
   {
     id: '2',
@@ -66,7 +65,6 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇬🇧',
     title: 'Photo Hunter',
     badgeIcon: '📸',
-    displayPoints: undefined,
   },
   {
     id: '3',
@@ -77,7 +75,6 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇺🇸',
     title: 'Foodie',
     badgeIcon: '🥟',
-    displayPoints: undefined,
   },
   {
     id: '4',
@@ -87,7 +84,6 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇩🇪',
     title: 'Wine Expert',
     badgeIcon: '🍇',
-    displayPoints: undefined,
   },
   {
     id: '5',
@@ -97,7 +93,6 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇵🇱',
     title: 'Explorers',
     badgeIcon: '🧭',
-    displayPoints: undefined,
   },
   {
     id: '6',
@@ -107,7 +102,6 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇬🇪',
     title: 'Musician',
     badgeIcon: '🎶',
-    displayPoints: undefined,
   },
   {
     id: '7',
@@ -117,7 +111,6 @@ export const MOCK_LEADERBOARD: LeaderboardUser[] = [
     flag: '🇺🇦',
     title: 'Zen Master',
     badgeIcon: '🍵',
-    displayPoints: undefined,
   },
 ];
 
