@@ -1,80 +1,97 @@
-import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { SYSTEM_PROMPT } from "../constants";
-import { QuestResponse, Coordinates } from "../types";
-
-// Initialize Gemini Client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+import { GoogleGenAI, Type, Modality } from '@google/genai';
+import { SYSTEM_PROMPT } from '../constants';
+import { QuestResponse, Coordinates } from '../types';
 
 // Audio Helper: Decode Base64 to ArrayBuffer
 function base64ToArrayBuffer(base64: string) {
-    const binaryString = window.atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes.buffer;
+  const binaryString = window.atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
 }
 
-export const generateAudioGuide = async (landmarkName: string, shortDescription: string): Promise<ArrayBuffer> => {
-    try {
-        // The TTS model is NOT a chat model. It does not accept system instructions like "Act as a guide".
-        // It strictly converts the input text to speech.
-        
-        const promptText = `Gamarjoba! Welcome to ${landmarkName}. ${shortDescription}`;
+// Helper to safely get AI client
+const getAiClient = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.error(
+      'API_KEY is missing! Please set it in Vercel Environment Variables.'
+    );
+    throw new Error('API Key is missing.');
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-tts",
-            contents: [{ parts: [{ text: promptText }] }],
-            config: {
-                responseModalities: [Modality.AUDIO],
-                speechConfig: {
-                    voiceConfig: {
-                        prebuiltVoiceConfig: { voiceName: 'Kore' }, 
-                    },
-                },
-            },
-        });
-
-        const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-        if (!base64Audio) throw new Error("No audio data received");
-
-        return base64ToArrayBuffer(base64Audio);
-
-    } catch (error) {
-        console.error("Audio Generation Error:", error);
-        throw error;
-    }
-}
-
-export const generatePhraseAudio = async (phrase: string): Promise<ArrayBuffer> => {
-    try {
-        // Simple TTS for phrases
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-tts",
-            contents: [{ parts: [{ text: phrase }] }],
-            config: {
-                responseModalities: [Modality.AUDIO],
-                speechConfig: {
-                    voiceConfig: {
-                        prebuiltVoiceConfig: { voiceName: 'Kore' }, 
-                    },
-                },
-            },
-        });
-
-        const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-        if (!base64Audio) throw new Error("No audio data received");
-
-        return base64ToArrayBuffer(base64Audio);
-    } catch (error) {
-        console.error("Phrase Audio Error:", error);
-        throw error;
-    }
-}
-
-export const identifyLandmark = async (base64Image: string, userLocation: Coordinates): Promise<QuestResponse> => {
+export const generateAudioGuide = async (
+  landmarkName: string,
+  shortDescription: string
+): Promise<ArrayBuffer> => {
   try {
+    const ai = getAiClient();
+    const promptText = `Gamarjoba! Welcome to ${landmarkName}. ${shortDescription}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-preview-tts',
+      contents: [{ parts: [{ text: promptText }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: 'Kore' },
+          },
+        },
+      },
+    });
+
+    const base64Audio =
+      response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!base64Audio) throw new Error('No audio data received');
+
+    return base64ToArrayBuffer(base64Audio);
+  } catch (error) {
+    console.error('Audio Generation Error:', error);
+    throw error;
+  }
+};
+
+export const generatePhraseAudio = async (
+  phrase: string
+): Promise<ArrayBuffer> => {
+  try {
+    const ai = getAiClient();
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-preview-tts',
+      contents: [{ parts: [{ text: phrase }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: 'Kore' },
+          },
+        },
+      },
+    });
+
+    const base64Audio =
+      response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!base64Audio) throw new Error('No audio data received');
+
+    return base64ToArrayBuffer(base64Audio);
+  } catch (error) {
+    console.error('Phrase Audio Error:', error);
+    throw error;
+  }
+};
+
+export const identifyLandmark = async (
+  base64Image: string,
+  userLocation: Coordinates
+): Promise<QuestResponse> => {
+  try {
+    const ai = getAiClient();
     // Remove header if present (e.g., "data:image/jpeg;base64,")
     const cleanBase64 = base64Image.split(',')[1] || base64Image;
 
@@ -90,68 +107,81 @@ export const identifyLandmark = async (base64Image: string, userLocation: Coordi
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview", 
+      model: 'gemini-3-flash-preview',
       contents: {
         parts: [
           {
             inlineData: {
-              mimeType: "image/jpeg",
-              data: cleanBase64
-            }
+              mimeType: 'image/jpeg',
+              data: cleanBase64,
+            },
           },
           {
-            text: `Identify this location. ${locationContext}`
-          }
-        ]
+            text: `Identify this location. ${locationContext}`,
+          },
+        ],
       },
       config: {
         systemInstruction: SYSTEM_PROMPT,
-        responseMimeType: "application/json",
+        responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
           properties: {
             location_confirmed: {
               type: Type.BOOLEAN,
-              description: "True ONLY if the visual image matches the landmark located at the provided GPS coordinates.",
+              description:
+                'True ONLY if the visual image matches the landmark located at the provided GPS coordinates.',
             },
             place_name: {
               type: Type.STRING,
-              description: "The name of the identified place.",
+              description: 'The name of the identified place.',
             },
             story: {
               type: Type.STRING,
-              description: "A short, engaging story or legend about the place (max 2 sentences).",
+              description:
+                'A short, engaging story or legend about the place (max 2 sentences).',
             },
             points_earned: {
               type: Type.INTEGER,
-              description: "Points awarded (0 if not confirmed, 50-100 if confirmed).",
+              description:
+                'Points awarded (0 if not confirmed, 50-100 if confirmed).',
             },
             next_quest_hint: {
               type: Type.STRING,
-              description: "A cryptic but helpful hint for another nearby location to visit.",
+              description:
+                'A cryptic but helpful hint for another nearby location to visit.',
             },
           },
-          required: ["location_confirmed", "place_name", "story", "points_earned", "next_quest_hint"],
+          required: [
+            'location_confirmed',
+            'place_name',
+            'story',
+            'points_earned',
+            'next_quest_hint',
+          ],
         },
       },
     });
 
     const text = response.text;
-    if (!text) throw new Error("No response from Gemini");
+    if (!text) throw new Error('No response from Gemini');
 
     // SANITIZE JSON: Remove markdown blocks if present (Gemini sometimes adds ```json ... ```)
-    const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const cleanedText = text
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
 
     return JSON.parse(cleanedText) as QuestResponse;
-
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error('Gemini API Error:', error);
     return {
       location_confirmed: false,
-      place_name: "Connection Error",
-      story: "The ancient spirits are blocking the signal. Please check your internet and try again.",
+      place_name: 'Connection Error',
+      story:
+        'The ancient spirits are blocking the signal. Please check your internet and try again.',
       points_earned: 0,
-      next_quest_hint: "Try moving to a spot with better reception."
+      next_quest_hint: 'Try moving to a spot with better reception.',
     };
   }
 };
