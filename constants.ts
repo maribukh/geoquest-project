@@ -1,6 +1,18 @@
 import { Landmark, Coupon, LeaderboardUser, Legend } from './types';
+import bagratiImg from './public/landmarks/bagrati.png';
+import hotelImg from './public/landmarks/my-home.avif';
+import kingBagratImg from './public/legends/king-bagrat-iii.jpg';
+import kingDavidImg from './public/legends/King_David_IV_the_Builder._Gelati_fresco.jpg';
+import akakiImg from './public/legends/akaki-wereteli.jpg';
+import mayakovskyImg from './public/legends/mayakovski.jpg';
+import verikoImg from './public/legends/veriko.jpg';
+import kakabadzeImg from './public/legends/davit-kakabadze.jpg';
+import rezoImg from './public/legends/rezo.webp';
+import ekvtimeImg from './public/legends/ekvtime.jpg';
+import galaktioniImg from './public/legends/galaktioni.jpg';
+import petreImg from './public/legends/petre.jpg';
+import zakariaImg from './public/legends/zaqari.webp';
 
-// Kutaisi Center (Centered between Hotel and Fountain)
 export const MAP_CENTER = { lat: 42.2715, lng: 42.706 };
 export const DEFAULT_ZOOM = 16;
 
@@ -106,8 +118,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '960–1014',
     bio: 'The first King of the Kingdom of Georgia. He united the fragmented lands and built the magnificent Bagrati Cathedral in Kutaisi as a symbol of the new powerful state.',
     gymnasiumConnection: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/King_Bagrat_III_of_Georgia.jpg/800px-King_Bagrat_III_of_Georgia.jpg',
+    image: kingBagratImg,
     quote: 'Unity is strength.',
   },
   {
@@ -117,8 +128,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1073–1125',
     bio: 'The greatest King who made Kutaisi the capital and founded the Gelati Academy. He is buried in the gateway of Gelati so people step on his grave (an act of humility).',
     gymnasiumConnection: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/David_IV_of_Georgia_fresco.jpg/800px-David_IV_of_Georgia_fresco.jpg',
+    image: kingDavidImg,
     quote: 'Remember me when you step on my grave.',
   },
   {
@@ -128,8 +138,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1840–1915',
     bio: 'A monumental figure. He studied at the Kutaisi Gymnasium. His poetry defined the national liberation movement. The "White Bridge" owes its fame partly to him.',
     gymnasiumConnection: true,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/4/4e/Akaki_Tsereteli_2.jpg',
+    image: akakiImg,
     quote: 'Suliko, where are you hiding?',
   },
   {
@@ -139,8 +148,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1893–1930',
     bio: 'Born in Baghdati (near Kutaisi), he studied at the Kutaisi Classical Gymnasium. He spoke fluent Georgian and his rebellious, rhythmic style was born in the streets of this city.',
     gymnasiumConnection: true,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Vladimir_Mayakovsky_%281910s%29.jpg/800px-Vladimir_Mayakovsky_%281910s%29.jpg',
+    image: mayakovskyImg,
     quote: 'I know the power of words.',
   },
   {
@@ -150,8 +158,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1897–1987',
     bio: 'Born in Kutaisi, she is considered one of the greatest Georgian actresses of all time. She was named one of the "10 best actresses of the 20th century" by the British encyclopedia.',
     gymnasiumConnection: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/ka/8/86/Veriko_Anjaparidze_1.jpg',
+    image: verikoImg,
     quote: 'Art requires sacrifice.',
   },
   {
@@ -161,8 +168,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1889–1952',
     bio: 'A painter, graphic artist, and scientist born near Kutaisi. He studied at the Kutaisi Gymnasium. He combined Georgian folk motifs with Cubism and abstract art.',
     gymnasiumConnection: true,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/e/e9/David_Kakabadze.jpg',
+    image: kakabadzeImg,
   },
   {
     id: 'rezo',
@@ -171,8 +177,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1936–2021',
     bio: 'Born in Kutaisi, he was a screenwriter for iconic Soviet films like "Mimino" and "Kin-dza-dza!". He created the famous Puppet Theatre in Tbilisi, but his roots are here.',
     gymnasiumConnection: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/e/e1/Rezo_Gabriadze.jpg',
+    image: rezoImg,
     quote: 'Life is a tear and a smile.',
   },
   {
@@ -182,8 +187,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1863–1953',
     bio: 'Historian and archeologist who saved the Georgian National Treasury during the Soviet invasion by taking it to France and guarding it for 24 years. Studied at Kutaisi Gymnasium.',
     gymnasiumConnection: true,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/e/ec/Ekvtime_Takaishvili.jpg',
+    image: ekvtimeImg,
   },
   {
     id: 'galaktion',
@@ -192,8 +196,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1891–1959',
     bio: "The most famous Georgian poet of the 20th century. He attended the Kutaisi Seminary. His verses captured the soul of Kutaisi's rain, wind, and melancholy.",
     gymnasiumConnection: true,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/e/e4/Galaktion_Tabidze.jpg',
+    image: galaktioniImg,
     quote: 'Without you, I am the wind in the field.',
   },
   {
@@ -203,7 +206,8 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1907–1937',
     bio: 'Born in Kutaisi, he became a legendary modernist set designer. His constructivist art style is iconic worldwide. He was a victim of the 1937 repressions.',
     gymnasiumConnection: false,
-    image: 'https://upload.wikimedia.org/wikipedia/ka/6/6e/Petre_Otskheli.jpg',
+    image: petreImg,
+    link: 'https://artsandculture.google.com/story/kQURtnvDoiucLg?hl=ru',
   },
   {
     id: 'paliashvili',
@@ -212,8 +216,7 @@ export const KUTAISI_LEGENDS: Legend[] = [
     years: '1871–1933',
     bio: 'Born in Kutaisi to a Catholic family, he created the Georgian National Style of classical music. He composed the National Anthem "Tavisupleba".',
     gymnasiumConnection: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/e/e5/Zakaria_Paliashvili.jpg',
+    image: zakariaImg,
   },
 ];
 
@@ -289,8 +292,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
       'Located just 1 min walk from Colchis Fountain and Karvasla Mall.',
     ],
     isUnlocked: false,
-    image:
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
+    image: hotelImg,
     reward_icon: '🏡',
     airbnbLink: 'https://ru.airbnb.com/rooms/1136214026220149573',
     secret_info: {
@@ -441,8 +443,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
       'Built in 1003, represents the unity of Georgia.',
     ],
     isUnlocked: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Bagrati_Cathedral_2.jpg/800px-Bagrati_Cathedral_2.jpg',
+    image: bagratiImg,
     reward_icon: '👑',
     mapLink: 'https://maps.app.goo.gl/bcU47u4oKz9XvfSM9',
   },
@@ -465,8 +466,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
       'A favorite local escape from the summer heat.',
     ],
     isUnlocked: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Kutaisi_Botanical_Garden.jpg/800px-Kutaisi_Botanical_Garden.jpg',
+    image: 'bagratiImg',
     reward_icon: '🌳',
     mapLink: 'https://maps.app.goo.gl/undC2PaSHe471xRb6',
   },
@@ -570,7 +570,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'prometheus_cave',
     name: 'Prometheus Cave',
     category: 'quest',
-    position: { lat: 42.377110241316394, lng: 42.60048671049498 },
+    position: { lat: 42.3768, lng: 42.601 },
     description: 'A 1.4km underground wonderland discovered in 1984.',
     riddle:
       'I was hidden in darkness until 1984. My rivers flow where the sun never shines, and my stone teeth grow from the ceiling.',

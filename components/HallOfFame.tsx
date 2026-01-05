@@ -163,6 +163,21 @@ const HallOfFame: React.FC = () => {
                 )}
               </div>
 
+              {/* Online Museum Link */}
+              {activeLegend.link && (
+                <div className='mb-10 text-center'>
+                  <a
+                    href={activeLegend.link}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='inline-flex items-center gap-2 px-6 py-3 bg-stone-800 text-[#f4f1ea] rounded-full font-serif italic text-sm hover:bg-stone-700 transition-colors shadow-lg active:scale-95 duration-200'
+                  >
+                    <span>🏛️</span>
+                    <span>Visit Virtual Museum</span>
+                  </a>
+                </div>
+              )}
+
               {/* Connection Footnote */}
               {activeLegend.gymnasiumConnection && (
                 <div className='bg-[#f4f1ea] rounded-xl p-5 border border-[#e6e2d6] flex gap-4 items-start'>

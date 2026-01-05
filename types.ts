@@ -57,6 +57,7 @@ export interface Legend {
   image: string;
   gymnasiumConnection: boolean; // Did they study at the First Gymnasium?
   quote?: string;
+  link?: string; // External link (e.g. online museum)
 }
 
 export enum AppView {
@@ -96,6 +97,6 @@ export interface ReviewData {
   userName?: string;
   avatar?: string;
   userId?: string;
-  emotion?: string; // NEW: Emotion label (e.g., "Amazing")
-  photos?: string[]; // NEW: Array of base64 image strings
+  emotion?: string;
+  photos?: string[];
 }
