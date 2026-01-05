@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GEORGIAN_PHRASES } from '../constants';
-import { generatePhraseAudio } from '../services/geminiService';
+import {
+  generatePhraseAudio,
+  base64ToUint8Array,
+  pcmToAudioBuffer,
+} from '../services/geminiService';
 
 const Phrasebook: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -20,55 +24,59 @@ const Phrasebook: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      if (audioContextRef.current) {
+      if (
+        audioContextRef.current &&
+        audioContextRef.current.state !== 'closed'
+      ) {
         audioContextRef.current.close();
       }
     };
   }, []);
 
   const handlePlay = async (text: string, index: number) => {
-    // Prevent multiple clicks
     if (loadingIndex !== null || playingIndex !== null) return;
-
     setLoadingIndex(index);
 
     try {
-      // Initialize AudioContext with specific sample rate for Gemini TTS (usually 24kHz)
-      // This prevents "chipmunk" speed issues on some devices
       if (!audioContextRef.current) {
         const AudioCtor =
           window.AudioContext || (window as any).webkitAudioContext;
-        audioContextRef.current = new AudioCtor({ sampleRate: 24000 });
+        audioContextRef.current = new AudioCtor();
       }
-
       const ctx = audioContextRef.current;
-
-      // Critical for iOS/Android: Resume context on user interaction
       if (ctx.state === 'suspended') {
         await ctx.resume();
       }
 
-      const audioBufferData = await generatePhraseAudio(text);
+      console.log('Fetching audio...');
+      const base64Data = await generatePhraseAudio(text);
 
-      // Decode audio data (browser handles resampling if needed, but context is already matched)
-      const audioBuffer = await ctx.decodeAudioData(audioBufferData);
+      console.log('Decoding audio...');
+      const rawBytes = base64ToUint8Array(base64Data);
+      const audioBuffer = pcmToAudioBuffer(rawBytes, ctx, 24000);
 
+      console.log('Playing audio...', audioBuffer.duration, 'seconds');
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(ctx.destination);
-
-      source.onended = () => {
-        setPlayingIndex(null);
-      };
+      source.onended = () => setPlayingIndex(null);
 
       setLoadingIndex(null);
       setPlayingIndex(index);
       source.start(0);
-    } catch (error) {
-      console.error('Audio playback error:', error);
+    } catch (error: any) {
+      console.error('Audio playback error FULL:', error);
       setLoadingIndex(null);
       setPlayingIndex(null);
-      alert('Audio error. Please check your internet or try again.');
+
+      // Show exact error to user
+      let msg = 'Unknown error';
+      if (error.message) msg = error.message;
+      if (msg.includes('403'))
+        msg = 'Billing Not Enabled on Google Cloud Project.';
+      if (msg.includes('400')) msg = 'Bad Request (Check API Key).';
+
+      alert(`Audio Error: ${msg}`);
     }
   };
 
@@ -89,7 +97,6 @@ const Phrasebook: React.FC = () => {
           </div>
         </div>
 
-        {/* Categories */}
         <div className='flex gap-2 overflow-x-auto pb-4 no-scrollbar'>
           {categories.map((cat) => (
             <button
@@ -106,7 +113,6 @@ const Phrasebook: React.FC = () => {
           ))}
         </div>
 
-        {/* Phrases List */}
         <div className='grid gap-3'>
           {filteredPhrases.map((phrase, idx) => {
             const isPlaying = playingIndex === idx;
@@ -122,17 +128,12 @@ const Phrasebook: React.FC = () => {
                 }`}
               >
                 <div className='flex-1'>
-                  {/* English Meaning */}
                   <h4 className='font-bold text-slate-800 text-sm mb-1'>
                     {phrase.eng}
                   </h4>
-
-                  {/* Pronunciation (Latin) */}
                   <p className='text-indigo-600 font-bold text-sm mb-0.5 tracking-wide'>
                     "{phrase.phon}"
                   </p>
-
-                  {/* Georgian Script */}
                   <p className='text-xs text-slate-400 font-medium font-serif opacity-80'>
                     {phrase.geo}
                   </p>

@@ -19,6 +19,17 @@ const ConciergeFab: React.FC = () => {
         {isOpen && (
             <div className="flex flex-col gap-3 animate-fade-in-up items-end">
                 
+                {/* Instagram Community */}
+                <a 
+                    href="https://www.instagram.com/historygeo_/" 
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-2.5 rounded-full shadow-lg border border-purple-400/50 hover:brightness-110 transition-all"
+                >
+                    <span className="text-xs font-bold text-white">Join Community</span>
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm">📸</div>
+                </a>
+
                 {/* Currency Button */}
                 <button 
                     onClick={() => { setShowCurrency(true); setIsOpen(false); }}

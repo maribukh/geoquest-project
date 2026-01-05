@@ -74,7 +74,6 @@ const App: React.FC = () => {
   } | null>(null);
   const [lootBoxMessage, setLootBoxMessage] = useState<string | null>(null);
   const [isOpeningBox, setIsOpeningBox] = useState(false);
-  const [playingPhrase, setPlayingPhrase] = useState<string | null>(null);
   const [activeDriverCardLandmark, setActiveDriverCardLandmark] =
     useState<Landmark | null>(null);
   const [activeHintLandmark, setActiveHintLandmark] = useState<Landmark | null>(
@@ -465,6 +464,46 @@ const App: React.FC = () => {
 
     return (
       <div className='space-y-4'>
+        {/* Instagram Promo */}
+        <a
+          href='https://www.instagram.com/historygeo_/'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='block mb-2 relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 shadow-xl group'
+        >
+          <div className='absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors'></div>
+          <div className='relative p-5 flex items-center justify-between'>
+            <div className='flex items-center gap-4'>
+              <div className='w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-lg'>
+                📸
+              </div>
+              <div className='text-white'>
+                <h3 className='font-black text-lg leading-tight'>
+                  Follow @historygeo_
+                </h3>
+                <p className='text-xs font-medium opacity-90'>
+                  Discover hidden histories & stories
+                </p>
+              </div>
+            </div>
+            <div className='bg-white/20 backdrop-blur-md p-2 rounded-full'>
+              <svg
+                className='w-6 h-6 text-white transform group-hover:rotate-45 transition-transform'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M17 8l4 4m0 0l-4 4m4-4H3'
+                />
+              </svg>
+            </div>
+          </div>
+        </a>
+
         {questLandmarks.map((quest) => {
           const isHintUnlocked = userState.unlockedHints.includes(quest.id);
           const isCompleted = quest.isUnlocked;
@@ -482,7 +521,7 @@ const App: React.FC = () => {
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg ${
                     isCompleted
-                      ? 'bg-emerald-500 text-white'
+                      ? 'bg-emerald-50 text-white'
                       : 'bg-slate-100 text-slate-400'
                   }`}
                 >
