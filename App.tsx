@@ -53,6 +53,7 @@ const App: React.FC = () => {
     inventory: [],
     redeemedCoupons: [],
     unlockedHints: [],
+    useOfflineVoice: false, // Default to AI, allow switch
   });
   const [landmarks, setLandmarks] = useState<Landmark[]>(INITIAL_LANDMARKS);
   const [lastResult, setLastResult] = useState<QuestResponse | null>(null);
@@ -849,6 +850,44 @@ const App: React.FC = () => {
               <div className='flex-1 overflow-y-auto px-6 py-6 pb-32'>
                 {profileTab === 'journal' && (
                   <div className='space-y-6'>
+                    {/* AUDIO SETTINGS TOGGLE */}
+                    <div className='bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-center justify-between'>
+                      <div className='flex items-center gap-3'>
+                        <div className='w-10 h-10 bg-white rounded-full flex items-center justify-center border border-slate-200 text-lg'>
+                          {userState.useOfflineVoice ? '🗣️' : '✨'}
+                        </div>
+                        <div>
+                          <h4 className='text-sm font-bold text-slate-800'>
+                            Force Offline Voice
+                          </h4>
+                          <p className='text-[10px] text-slate-500'>
+                            Save AI limit & data
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() =>
+                          setUserState((p) => ({
+                            ...p,
+                            useOfflineVoice: !p.useOfflineVoice,
+                          }))
+                        }
+                        className={`w-12 h-6 rounded-full transition-colors relative ${
+                          userState.useOfflineVoice
+                            ? 'bg-emerald-500'
+                            : 'bg-slate-300'
+                        }`}
+                      >
+                        <div
+                          className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                            userState.useOfflineVoice
+                              ? 'translate-x-6'
+                              : 'translate-x-0'
+                          }`}
+                        ></div>
+                      </button>
+                    </div>
+
                     <div className='bg-emerald-600 rounded-3xl p-6 text-white shadow-2xl'>
                       <h3 className='text-lg font-bold mb-1'>
                         Your Collection
@@ -1216,7 +1255,13 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      {lastResult && <ResultModal result={lastResult} onClose={closeResult} />}
+      {lastResult && (
+        <ResultModal
+          result={lastResult}
+          onClose={closeResult}
+          forceOffline={userState.useOfflineVoice}
+        />
+      )}
 
       {feedbackMode && (
         <FeedbackModal

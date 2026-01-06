@@ -75,6 +75,7 @@ export interface UserState {
   inventory: string[];
   redeemedCoupons: string[]; // List of Coupon IDs
   unlockedHints: string[]; // List of Landmark IDs where hint was bought
+  useOfflineVoice: boolean; // NEW: Preference for unlimited offline voice
 }
 
 export interface LeaderboardUser {
@@ -97,6 +98,6 @@ export interface ReviewData {
   userName?: string;
   avatar?: string;
   userId?: string;
-  emotion?: string;
-  photos?: string[];
+  emotion?: string; // NEW: Emotion label (e.g., "Amazing")
+  photos?: string[]; // NEW: Array of base64 image strings
 }

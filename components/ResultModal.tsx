@@ -4,17 +4,26 @@ import {
   generateAudioGuide,
   base64ToUint8Array,
   pcmToAudioBuffer,
+  speakNative,
+  stopNativeSpeech,
 } from '../services/geminiService';
 
 interface ResultModalProps {
   result: QuestResponse;
   onClose: () => void;
+  forceOffline?: boolean;
 }
 
-const ResultModal: React.FC<ResultModalProps> = ({ result, onClose }) => {
+const ResultModal: React.FC<ResultModalProps> = ({
+  result,
+  onClose,
+  forceOffline = false,
+}) => {
   const isSuccess = result.location_confirmed;
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [usingNative, setUsingNative] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null); // Track specific audio errors
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
@@ -25,22 +34,55 @@ const ResultModal: React.FC<ResultModalProps> = ({ result, onClose }) => {
 
     return () => {
       if (ctx.state !== 'closed') ctx.close();
+      stopNativeSpeech();
     };
   }, []);
 
+  const playNative = async () => {
+    setUsingNative(true);
+    setIsPlaying(true);
+    setAudioError(null);
+    try {
+      const textToSpeak = `${result.place_name}. ${result.story}`;
+      await speakNative(textToSpeak);
+    } catch (nativeError) {
+      console.error('Native speech failed', nativeError);
+      setAudioError('Voice not supported on this device.');
+    } finally {
+      setIsPlaying(false);
+      setUsingNative(false);
+    }
+  };
+
   const handleAudioTour = async () => {
+    setAudioError(null);
+
     if (isPlaying) {
-      if (audioSourceRef.current) {
-        audioSourceRef.current.stop();
+      // Stop whatever is playing
+      if (usingNative) {
+        stopNativeSpeech();
         setIsPlaying(false);
+        setUsingNative(false);
+      } else {
+        if (audioSourceRef.current) {
+          audioSourceRef.current.stop();
+          setIsPlaying(false);
+        }
       }
       return;
     }
 
-    if (!audioContext) return;
+    // Force Offline Mode check
+    if (forceOffline) {
+      playNative();
+      return;
+    }
+
     setIsLoadingAudio(true);
 
     try {
+      // --- 1. TRY AI AUDIO FIRST ---
+      if (!audioContext) throw new Error('No Audio Context');
       if (audioContext.state === 'suspended') {
         await audioContext.resume();
       }
@@ -60,14 +102,23 @@ const ResultModal: React.FC<ResultModalProps> = ({ result, onClose }) => {
       source.start(0);
       audioSourceRef.current = source;
       setIsPlaying(true);
+      setUsingNative(false);
     } catch (e: any) {
-      console.error('Failed to play audio tour', e);
-      let msg = e.message || 'Unknown error';
-      if (msg.includes('403')) msg = 'Google Cloud Billing is disabled.';
-      alert(`Audio Failed: ${msg}`);
+      console.warn('AI Audio failed:', e.message);
+      // Show manual button for iOS compatibility
+      setAudioError('Limit Reached or Network Error.');
+      setIsPlaying(false);
     } finally {
       setIsLoadingAudio(false);
     }
+  };
+
+  const handleClose = () => {
+    if (isPlaying) {
+      if (usingNative) stopNativeSpeech();
+      else if (audioSourceRef.current) audioSourceRef.current.stop();
+    }
+    onClose();
   };
 
   return (
@@ -102,30 +153,48 @@ const ResultModal: React.FC<ResultModalProps> = ({ result, onClose }) => {
             </p>
           </div>
 
-          <button
-            onClick={handleAudioTour}
-            disabled={isLoadingAudio}
-            className={`mx-auto mb-8 w-full flex items-center justify-center gap-3 px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all border-2
-                ${
-                  isPlaying
-                    ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
-                    : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-400 hover:text-emerald-600 shadow-sm'
-                }`}
-          >
-            {isLoadingAudio ? (
-              <span className='animate-spin text-lg'>⏳</span>
-            ) : isPlaying ? (
-              <>
-                <span className='animate-pulse text-lg'>🔊</span>
-                <span>Stop Tour</span>
-              </>
-            ) : (
-              <>
-                <span className='text-lg'>✨</span>
-                <span>Start AI Audio Tour</span>
-              </>
-            )}
-          </button>
+          {!audioError ? (
+            <button
+              onClick={handleAudioTour}
+              disabled={isLoadingAudio}
+              className={`mx-auto mb-4 w-full flex items-center justify-center gap-3 px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all border-2
+                    ${
+                      isPlaying
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+                        : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-400 hover:text-emerald-600 shadow-sm'
+                    }`}
+            >
+              {isLoadingAudio ? (
+                <span className='animate-spin text-lg'>⏳</span>
+              ) : isPlaying ? (
+                <>
+                  <span className='animate-pulse text-lg'>🔊</span>
+                  <span>
+                    {usingNative ? 'Stop Reading' : 'Stop Audio Tour'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className='text-lg'>{forceOffline ? '🗣️' : '✨'}</span>
+                  <span>
+                    {forceOffline ? 'Read Aloud (Offline)' : 'Listen to Guide'}
+                  </span>
+                </>
+              )}
+            </button>
+          ) : (
+            <div className='mb-4'>
+              <p className='text-[10px] text-red-500 font-bold mb-2 uppercase'>
+                {audioError}
+              </p>
+              <button
+                onClick={playNative}
+                className='w-full bg-slate-100 text-slate-700 hover:bg-slate-200 py-3 rounded-2xl font-bold text-xs uppercase flex items-center justify-center gap-2'
+              >
+                <span>🗣️</span> Play Offline Voice
+              </button>
+            </div>
+          )}
 
           {isSuccess && (
             <div className='bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-4 mb-6 border border-orange-100'>
@@ -149,7 +218,7 @@ const ResultModal: React.FC<ResultModalProps> = ({ result, onClose }) => {
           </div>
 
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className={`w-full py-4 rounded-2xl font-bold text-white shadow-xl transition-transform active:scale-95 ${
               isSuccess
                 ? 'bg-slate-900 hover:bg-black'

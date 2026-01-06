@@ -65,18 +65,12 @@ const Phrasebook: React.FC = () => {
       setPlayingIndex(index);
       source.start(0);
     } catch (error: any) {
-      console.error('Audio playback error FULL:', error);
+      console.error('Audio playback error:', error);
       setLoadingIndex(null);
       setPlayingIndex(null);
 
-      // Show exact error to user
-      let msg = 'Unknown error';
-      if (error.message) msg = error.message;
-      if (msg.includes('403'))
-        msg = 'Billing Not Enabled on Google Cloud Project.';
-      if (msg.includes('400')) msg = 'Bad Request (Check API Key).';
-
-      alert(`Audio Error: ${msg}`);
+      // Show user-friendly error
+      alert(`🔊 Audio Error: ${error.message || 'Please try again later.'}`);
     }
   };
 

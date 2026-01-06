@@ -2,6 +2,10 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { SYSTEM_PROMPT } from '../constants';
 import { QuestResponse, Coordinates } from '../types';
 
+// --- AUDIO CACHE ---
+// Stores generated audio to prevent hitting API Rate Limits (429) on repeated clicks
+const audioCache = new Map<string, string>();
+
 // --- AUDIO DECODING HELPERS ---
 
 export function base64ToUint8Array(base64: string): Uint8Array {
@@ -43,6 +47,52 @@ export function pcmToAudioBuffer(
   return buffer;
 }
 
+// --- NATIVE BROWSER TTS (UNLIMITED FREE FALLBACK) ---
+export const speakNative = (
+  text: string,
+  lang: string = 'en-US'
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (!('speechSynthesis' in window)) {
+      // Check for iOS
+      console.warn('Speech Synthesis not found directly on window.');
+    }
+
+    // Cancel any currently playing speech to start fresh
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    utterance.rate = 0.9; // Slightly slower for better clarity
+    utterance.pitch = 1.0;
+
+    // Try to select a better voice if available (e.g., Google US English)
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(
+      (v) => v.name.includes('Google') && v.lang.includes('en')
+    );
+    if (preferredVoice) utterance.voice = preferredVoice;
+
+    utterance.onend = () => {
+      resolve();
+    };
+
+    utterance.onerror = (e) => {
+      console.error('Native Speech Error:', e);
+      // resolve anyway to reset UI state so button doesn't get stuck
+      resolve();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  });
+};
+
+export const stopNativeSpeech = () => {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+};
+
 // --- API CLIENT ---
 
 const getApiKey = () => {
@@ -74,17 +124,40 @@ const getAiClient = () => {
   return new GoogleGenAI({ apiKey });
 };
 
+// --- HELPER: ERROR PARSER ---
+const parseGeminiError = (error: any): Error => {
+  const msg = error.toString();
+  if (
+    msg.includes('429') ||
+    msg.includes('RESOURCE_EXHAUSTED') ||
+    msg.includes('quota')
+  ) {
+    return new Error('QUOTA_EXCEEDED');
+  }
+  if (msg.includes('503') || msg.includes('overloaded')) {
+    return new Error('AI Model is overloaded. Switching to offline mode.');
+  }
+  return error;
+};
+
 // --- FEATURES ---
 
 export const generateAudioGuide = async (
   landmarkName: string,
   shortDescription: string
 ): Promise<string> => {
+  // 1. Check Cache
+  const cacheKey = `guide:${landmarkName}`;
+  if (audioCache.has(cacheKey)) {
+    console.log('🔊 Playing Audio Guide from Cache ⚡');
+    return audioCache.get(cacheKey)!;
+  }
+
   try {
     const ai = getAiClient();
-    console.log('🔊 Requesting Audio for:', landmarkName);
+    console.log('🔊 Requesting Audio API for:', landmarkName);
 
-    const promptText = `Speak enthusiastically like a tour guide: "Gamarjoba! Welcome to ${landmarkName}. ${shortDescription}"`;
+    const promptText = `You are a professional tour guide. Please read the following description clearly and enthusiastically for a tourist: "Gamarjoba! Welcome to ${landmarkName}. ${shortDescription}"`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-preview-tts',
@@ -102,25 +175,40 @@ export const generateAudioGuide = async (
 
     const base64Audio =
       response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!base64Audio)
-      throw new Error('API returned no audio data. Model might be busy.');
 
-    console.log('✅ Audio Data Received. Length:', base64Audio.length);
+    if (!base64Audio) {
+      const textPart = response.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (textPart)
+        console.warn('Model returned text instead of audio:', textPart);
+      throw new Error('API returned no audio data. Model might be busy.');
+    }
+
+    console.log('✅ Audio Data Received. Caching...');
+    audioCache.set(cacheKey, base64Audio); // Save to cache
     return base64Audio;
   } catch (error: any) {
     console.error('Audio Gen Error:', error);
-    throw error; // Re-throw to be caught by UI
+    throw parseGeminiError(error);
   }
 };
 
 export const generatePhraseAudio = async (phrase: string): Promise<string> => {
+  // 1. Check Cache
+  const cacheKey = `phrase:${phrase}`;
+  if (audioCache.has(cacheKey)) {
+    console.log('🔊 Playing Phrase from Cache ⚡');
+    return audioCache.get(cacheKey)!;
+  }
+
   try {
     const ai = getAiClient();
-    console.log('🔊 Requesting Phrase:', phrase);
+    console.log('🔊 Requesting Phrase API for:', phrase);
+
+    const promptText = `You are a native Georgian speaker. Please pronounce the following phrase clearly and slowly: "${phrase}"`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-preview-tts',
-      contents: [{ parts: [{ text: phrase }] }],
+      contents: [{ parts: [{ text: promptText }] }],
       config: {
         responseModalities: ['AUDIO' as any],
         speechConfig: {
@@ -133,12 +221,22 @@ export const generatePhraseAudio = async (phrase: string): Promise<string> => {
 
     const base64Audio =
       response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!base64Audio) throw new Error('API returned no audio data.');
 
+    if (!base64Audio) {
+      const textResponse = response.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (textResponse) {
+        console.warn('⚠️ Model returned text instead of audio:', textResponse);
+        throw new Error(`Model returned text: ${textResponse}`);
+      }
+      throw new Error('API returned no audio data.');
+    }
+
+    console.log('✅ Phrase Audio Received. Caching...');
+    audioCache.set(cacheKey, base64Audio); // Save to cache
     return base64Audio;
   } catch (error: any) {
     console.error('Phrase Audio Error:', error);
-    throw error;
+    throw parseGeminiError(error);
   }
 };
 
