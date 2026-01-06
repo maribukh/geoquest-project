@@ -15,6 +15,7 @@ const Scanner: React.FC<ScannerProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isVideoReady, setIsVideoReady] = useState(false);
@@ -25,8 +26,9 @@ const Scanner: React.FC<ScannerProps> = ({
       try {
         // Mobile-optimized constraints
         const constraints = {
+          audio: false,
           video: {
-            facingMode: 'environment',
+            facingMode: 'environment', // Rear camera
             width: { ideal: 1280 }, // Lower resolution for better stability
             height: { ideal: 720 },
           },
@@ -46,7 +48,8 @@ const Scanner: React.FC<ScannerProps> = ({
         }
       } catch (err) {
         console.error('Camera Error:', err);
-        setError('Please allow camera access.');
+        // Don't show blocking error immediately, allow gallery upload
+        setIsVideoReady(false);
       }
     };
 
@@ -59,18 +62,24 @@ const Scanner: React.FC<ScannerProps> = ({
     };
   }, []);
 
+  const processImage = async (imageBase64: string) => {
+    setIsScanning(true);
+    try {
+      const result = await identifyLandmark(imageBase64, userLocation);
+      onAnalyzeComplete(result, imageBase64);
+    } catch (e) {
+      console.error('Scan failed:', e);
+      setError('Connection failed. Try again.');
+      setIsScanning(false);
+    }
+  };
+
   const handleCapture = async () => {
     if (!videoRef.current || !canvasRef.current || !isVideoReady) return;
 
     const video = videoRef.current;
+    if (video.videoWidth === 0 || video.videoHeight === 0) return;
 
-    // Safety check: ensure video has dimensions
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
-      alert('Camera initializing... try again in a second.');
-      return;
-    }
-
-    setIsScanning(true);
     const canvas = canvasRef.current;
 
     // Scale down image for API performance (Max 1024px width)
@@ -82,22 +91,26 @@ const Scanner: React.FC<ScannerProps> = ({
 
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      // Draw current video frame to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Get base64 string (0.7 quality is good balance)
       const imageBase64 = canvas.toDataURL('image/jpeg', 0.7);
-
-      try {
-        // Pass the GPS location to the AI service for Geogrounding
-        const result = await identifyLandmark(imageBase64, userLocation);
-        onAnalyzeComplete(result, imageBase64);
-      } catch (e) {
-        console.error('Scan failed:', e);
-        setError('Connection failed. Try again.');
-        setIsScanning(false);
-      }
+      await processImage(imageBase64);
     }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        processImage(base64);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const openGallery = () => {
+    fileInputRef.current?.click();
   };
 
   if (error) {
@@ -126,8 +139,25 @@ const Scanner: React.FC<ScannerProps> = ({
           autoPlay
           playsInline
           muted
-          className='absolute inset-0 w-full h-full object-cover opacity-80'
+          className={`absolute inset-0 w-full h-full object-cover opacity-80 ${
+            !isVideoReady ? 'hidden' : ''
+          }`}
         />
+
+        {/* Fallback Message if camera denied/loading */}
+        {!isVideoReady && (
+          <div className='absolute inset-0 flex items-center justify-center p-8 text-center'>
+            <div>
+              <div className='text-4xl mb-4'>📷</div>
+              <p className='text-white/70 text-sm font-medium'>
+                Camera access not available.
+              </p>
+              <p className='text-white/50 text-xs mt-2'>
+                Please use the Upload button below to take a photo.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* --- HUD OVERLAY LAYER --- */}
         <div className='absolute inset-0 pointer-events-none'>
@@ -163,7 +193,7 @@ const Scanner: React.FC<ScannerProps> = ({
           {/* Top Info Bar */}
           <div className='absolute top-8 left-4 right-4 flex justify-between items-start'>
             <div className='bg-black/40 backdrop-blur-sm border border-emerald-500/30 px-3 py-1 rounded text-xs font-mono text-emerald-400 uppercase tracking-widest'>
-              {isVideoReady ? 'SYS.ONLINE // READY' : 'INITIALIZING...'}
+              {isVideoReady ? 'SYS.ONLINE // READY' : 'CAM.OFFLINE'}
             </div>
             <div className='bg-black/40 backdrop-blur-sm border border-emerald-500/30 px-3 py-1 rounded text-xs font-mono text-emerald-400'>
               LAT: {userLocation.lat.toFixed(5)}
@@ -185,31 +215,58 @@ const Scanner: React.FC<ScannerProps> = ({
         </div>
 
         <canvas ref={canvasRef} className='hidden' />
+
+        {/* Hidden File Input for Native Camera/Gallery */}
+        <input
+          type='file'
+          ref={fileInputRef}
+          accept='image/*'
+          capture='environment' // This tries to open the rear camera directly on mobile
+          className='hidden'
+          onChange={handleFileSelect}
+        />
       </div>
 
       {/* Control Deck */}
-      <div className='h-32 bg-slate-900 border-t border-emerald-900/50 flex items-center justify-center px-10 relative z-50'>
+      <div className='h-32 bg-slate-900 border-t border-emerald-900/50 flex items-center justify-between px-10 relative z-50'>
         <button
           onClick={onClose}
-          className='absolute left-10 text-emerald-500/70 hover:text-emerald-400 font-mono text-xs uppercase tracking-widest border border-emerald-500/30 px-4 py-2 rounded'
+          className='text-emerald-500/70 hover:text-emerald-400 font-mono text-xs uppercase tracking-widest border border-emerald-500/30 px-4 py-2 rounded'
         >
           Abort
         </button>
 
-        <button
-          onClick={handleCapture}
-          disabled={isScanning || !isVideoReady}
-          className={`w-20 h-20 rounded-full border border-emerald-500/30 flex items-center justify-center transition-all duration-300 ${
-            isScanning || !isVideoReady
-              ? 'scale-95 opacity-50'
-              : 'active:scale-95 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]'
-          }`}
-        >
-          <div
-            className={`w-16 h-16 rounded-full border-2 border-emerald-200 transition-all ${
-              isScanning ? 'bg-emerald-600' : 'bg-white'
+        {/* Shutter Button (Live Camera) */}
+        {isVideoReady && (
+          <button
+            onClick={handleCapture}
+            disabled={isScanning}
+            className={`w-20 h-20 rounded-full border border-emerald-500/30 flex items-center justify-center transition-all duration-300 ${
+              isScanning
+                ? 'scale-95 opacity-50'
+                : 'active:scale-95 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]'
             }`}
-          ></div>
+          >
+            <div
+              className={`w-16 h-16 rounded-full border-2 border-emerald-200 transition-all ${
+                isScanning ? 'bg-emerald-600' : 'bg-white'
+              }`}
+            ></div>
+          </button>
+        )}
+
+        {/* Gallery / Upload Button (Fallback) */}
+        <button
+          onClick={openGallery}
+          disabled={isScanning}
+          className='flex flex-col items-center gap-1 text-emerald-500/70 hover:text-emerald-400 active:scale-95 transition-transform'
+        >
+          <div className='w-10 h-10 rounded-xl border border-emerald-500/30 flex items-center justify-center bg-emerald-900/20'>
+            <span className='text-xl'>🖼️</span>
+          </div>
+          <span className='text-[9px] font-bold uppercase tracking-widest'>
+            Upload
+          </span>
         </button>
       </div>
     </div>
