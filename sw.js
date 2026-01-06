@@ -1,10 +1,9 @@
-const CACHE_NAME = 'geoquest-v1';
+const CACHE_NAME = 'geoquest-v2';
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  'https://cdn.tailwindcss.com',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap'
+  '/',
+  '/index.html',
+  // Removed external CDNs (Tailwind, Fonts, Leaflet) to prevent CORS errors
+  // The browser will handle caching of these external resources automatically via HTTP headers
 ];
 
 self.addEventListener('install', (event) => {
@@ -16,16 +15,15 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests like Firebase or Gemini API for SW caching strategies
-  // We strictly want to cache the UI Shell
-  if (!event.request.url.startsWith('http')) return;
+  // Strictly skip cross-origin requests from SW caching to avoid CORS failures
+  // This prevents 'TypeError: Failed to fetch' for CDNs like tailwindcss.com
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request).then((networkResponse) => {
-        // Optional: Dynamic caching for images could go here
-        return networkResponse;
-      });
+      return response || fetch(event.request);
     })
   );
 });

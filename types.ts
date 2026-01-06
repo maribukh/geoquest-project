@@ -60,6 +60,27 @@ export interface Legend {
   link?: string; // External link (e.g. online museum)
 }
 
+export interface ChatMessage {
+  role: 'user' | 'model';
+  text: string;
+}
+
+// --- ITINERARY TYPES ---
+export interface ItineraryItem {
+  time: string;
+  title: string;
+  description: string;
+  type: 'walk' | 'visit' | 'eat' | 'photo';
+  landmarkId?: string; // If it matches one of our app landmarks
+  icon: string;
+}
+
+export interface ItineraryRequest {
+  duration: string; // "2 hours", "Half Day"
+  vibe: string[]; // ["History", "Food", "Relax"]
+  userLocation: Coordinates;
+}
+
 export enum AppView {
   MAP = 'MAP',
   CAMERA = 'CAMERA',

@@ -1,6 +1,12 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import { SYSTEM_PROMPT } from '../constants';
-import { QuestResponse, Coordinates } from '../types';
+import { SYSTEM_PROMPT, INITIAL_LANDMARKS } from '../constants';
+import {
+  QuestResponse,
+  Coordinates,
+  ChatMessage,
+  ItineraryRequest,
+  ItineraryItem,
+} from '../types';
 
 // --- AUDIO CACHE ---
 // Stores generated audio to prevent hitting API Rate Limits (429) on repeated clicks
@@ -141,6 +147,136 @@ const parseGeminiError = (error: any): Error => {
 };
 
 // --- FEATURES ---
+
+export const planItinerary = async (
+  req: ItineraryRequest
+): Promise<ItineraryItem[]> => {
+  try {
+    const ai = getAiClient();
+
+    // Create a mini-map of available landmarks for the AI
+    const availableLandmarks = INITIAL_LANDMARKS.map((l) => ({
+      id: l.id,
+      name: l.name,
+      category: l.category,
+      desc: l.description,
+    }));
+
+    const prompt = `
+            You are an expert local guide for Kutaisi, Georgia.
+            
+            TASK: Create a ${
+              req.duration
+            } itinerary based on these interests: ${req.vibe.join(', ')}.
+            Current User Location: Lat ${req.userLocation.lat}, Lng ${
+      req.userLocation.lng
+    }.
+            
+            AVAILABLE APP LANDMARKS (Prioritize these so the user can use the app map):
+            ${JSON.stringify(availableLandmarks)}
+            
+            REQUIREMENTS:
+            1. Return a JSON Array of steps.
+            2. "landmarkId" MUST match exactly one of the IDs provided above if applicable. If it's a generic walk or a place not in the list, leave landmarkId null.
+            3. "type" must be one of: 'walk', 'visit', 'eat', 'photo'.
+            4. Keep descriptions short and punchy (max 15 words).
+            5. "time" should be e.g. "10:00 AM" or "+15 mins".
+            6. "icon" should be a relevant emoji.
+        `;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: [{ parts: [{ text: prompt }] }],
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              time: { type: Type.STRING },
+              title: { type: Type.STRING },
+              description: { type: Type.STRING },
+              type: {
+                type: Type.STRING,
+                enum: ['walk', 'visit', 'eat', 'photo'],
+              },
+              landmarkId: { type: Type.STRING, nullable: true },
+              icon: { type: Type.STRING },
+            },
+            required: ['time', 'title', 'description', 'type', 'icon'],
+          },
+        },
+      },
+    });
+
+    const text = response.text;
+    if (!text) throw new Error('No itinerary generated');
+
+    const cleanText = text
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
+    return JSON.parse(cleanText) as ItineraryItem[];
+  } catch (error) {
+    console.error('Planner Error:', error);
+    throw parseGeminiError(error);
+  }
+};
+
+export const chatWithLegend = async (
+  legendName: string,
+  legendBio: string,
+  history: ChatMessage[],
+  newMessage: string
+): Promise<string> => {
+  try {
+    const ai = getAiClient();
+
+    // Persona definition
+    const systemInstruction = `
+            You are acting as ${legendName} from Georgian history.
+            Bio: ${legendBio}
+            
+            Rules:
+            1. Respond in the first person ("I", "my").
+            2. Be warm, hospitable, and slightly archaic/poetic if appropriate for the era.
+            3. Keep responses SHORT (max 2-3 sentences). This is a chat.
+            4. If asked about modern things (iphones, cars), express confusion or wonder.
+            5. Always end with a question to keep the conversation going, or a wise proverb.
+        `;
+
+    const chat = ai.chats.create({
+      model: 'gemini-3-flash-preview',
+      config: {
+        systemInstruction: systemInstruction,
+      },
+    });
+
+    const historyText = history
+      .map((h) => `${h.role === 'user' ? 'Traveler' : legendName}: ${h.text}`)
+      .join('\n');
+    const prompt = `
+            ${systemInstruction}
+            
+            Previous Conversation:
+            ${historyText}
+            
+            Traveler: ${newMessage}
+            ${legendName}:
+        `;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: [{ parts: [{ text: prompt }] }],
+    });
+
+    return response.text || '...';
+  } catch (error) {
+    console.error('Chat Error:', error);
+    throw parseGeminiError(error);
+  }
+};
 
 export const generateAudioGuide = async (
   landmarkName: string,

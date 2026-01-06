@@ -1,17 +1,20 @@
 import { Landmark, Coupon, LeaderboardUser, Legend } from './types';
-import bagratiImg from './public/landmarks/bagrati.png';
-import hotelImg from './public/landmarks/my-home.avif';
-import kingBagratImg from './public/legends/king-bagrat-iii.jpg';
-import kingDavidImg from './public/legends/King_David_IV_the_Builder._Gelati_fresco.jpg';
-import akakiImg from './public/legends/akaki-wereteli.jpg';
-import mayakovskyImg from './public/legends/mayakovski.jpg';
-import verikoImg from './public/legends/veriko.jpg';
-import kakabadzeImg from './public/legends/davit-kakabadze.jpg';
-import rezoImg from './public/legends/rezo.webp';
-import ekvtimeImg from './public/legends/ekvtime.jpg';
-import galaktioniImg from './public/legends/galaktioni.jpg';
-import petreImg from './public/legends/petre.jpg';
-import zakariaImg from './public/legends/zaqari.webp';
+
+// NOTE: In Vite, files in 'public' are served at root. We reference them by string path.
+// Do NOT use 'import' for files in the public directory.
+const bagratiImg = '/landmarks/bagrati.png';
+const hotelImg = '/landmarks/my-home.avif';
+const kingBagratImg = '/legends/king-bagrat-iii.jpg';
+const kingDavidImg = '/legends/King_David_IV_the_Builder._Gelati_fresco.jpg';
+const akakiImg = '/legends/akaki-wereteli.jpg';
+const mayakovskyImg = '/legends/mayakovski.jpg';
+const verikoImg = '/legends/veriko.jpg';
+const kakabadzeImg = '/legends/davit-kakabadze.jpg';
+const rezoImg = '/legends/rezo.webp';
+const ekvtimeImg = '/legends/ekvtime.jpg';
+const galaktioniImg = '/legends/galaktioni.jpg';
+const petreImg = '/legends/petre.jpg';
+const zakariaImg = '/legends/zaqari.webp';
 
 export const MAP_CENTER = { lat: 42.2715, lng: 42.706 };
 export const DEFAULT_ZOOM = 16;
@@ -40,6 +43,12 @@ export const GEORGIAN_PHRASES = [
   // Shopping / Travel
   { geo: 'რა ღირს?', phon: 'Ra ghirs?', eng: 'How much?', category: 'Travel' },
   { geo: 'სად არის?', phon: 'Sad aris?', eng: 'Where is?', category: 'Travel' },
+  {
+    geo: 'მარჯვნივ / მარცხნივ',
+    phon: 'Marjvniv / Martskhniv',
+    eng: 'Right / Left',
+    category: 'Travel',
+  },
 ];
 
 export const MOCK_LEADERBOARD: LeaderboardUser[] = [
@@ -116,27 +125,27 @@ export const KUTAISI_LEGENDS: Legend[] = [
     name: 'King Bagrat III',
     role: 'The Unifier',
     years: '960–1014',
-    bio: 'The first King of the Kingdom of Georgia. He united the fragmented lands and built the magnificent Bagrati Cathedral in Kutaisi as a symbol of the new powerful state.',
+    bio: 'I am the architect of a united Georgia. Before me, there were only warring tribes. I built the great Cathedral on Ukimerioni Hill to show the world our strength. My legacy is stone and unity.',
     gymnasiumConnection: false,
     image: kingBagratImg,
-    quote: 'Unity is strength.',
+    quote: 'A kingdom divided cannot stand.',
   },
   {
     id: 'david',
     name: 'David the Builder',
     role: 'King of Georgia',
     years: '1073–1125',
-    bio: 'The greatest King who made Kutaisi the capital and founded the Gelati Academy. He is buried in the gateway of Gelati so people step on his grave (an act of humility).',
+    bio: 'I inherited a broken land and built a Golden Age. I founded the Gelati Academy because I believe the sword protects, but knowledge elevates. I asked to be buried in the gateway, so my people would step on my heart.',
     gymnasiumConnection: false,
     image: kingDavidImg,
-    quote: 'Remember me when you step on my grave.',
+    quote: 'Knowledge is the light of the soul.',
   },
   {
     id: 'akaki',
     name: 'Akaki Tsereteli',
     role: 'Prince & Poet',
     years: '1840–1915',
-    bio: 'A monumental figure. He studied at the Kutaisi Gymnasium. His poetry defined the national liberation movement. The "White Bridge" owes its fame partly to him.',
+    bio: 'I walked these streets of Kutaisi, composing verses that every Georgian knows by heart. My pen was my weapon for freedom. I studied here, loved here, and my spirit lingers on the White Bridge.',
     gymnasiumConnection: true,
     image: akakiImg,
     quote: 'Suliko, where are you hiding?',
@@ -146,55 +155,57 @@ export const KUTAISI_LEGENDS: Legend[] = [
     name: 'Vladimir Mayakovsky',
     role: 'Futurist Poet',
     years: '1893–1930',
-    bio: 'Born in Baghdati (near Kutaisi), he studied at the Kutaisi Classical Gymnasium. He spoke fluent Georgian and his rebellious, rhythmic style was born in the streets of this city.',
+    bio: 'I was born in Baghdati, but Kutaisi gave me my voice. I studied at the Gymnasium here. My rhymes are like thunder, my style broken and new. I speak Russian, but my temper is pure Georgian.',
     gymnasiumConnection: true,
     image: mayakovskyImg,
-    quote: 'I know the power of words.',
+    quote: 'I would have learned Georgian just because Lenin spoke it.',
   },
   {
     id: 'veriko',
     name: 'Veriko Anjaparidze',
     role: 'Mother of Cinema',
     years: '1897–1987',
-    bio: 'Born in Kutaisi, she is considered one of the greatest Georgian actresses of all time. She was named one of the "10 best actresses of the 20th century" by the British encyclopedia.',
+    bio: 'The camera loved me, but the stage was my home. Born in Kutaisi, I became the face of Georgian tragedy and triumph. The British Encyclopedia called me one of the greatest actresses of the 20th century.',
     gymnasiumConnection: false,
     image: verikoImg,
-    quote: 'Art requires sacrifice.',
+    quote: 'Art is not a mirror, it is a hammer.',
   },
   {
     id: 'kakabadze',
     name: 'Davit Kakabadze',
     role: 'Avant-Garde Artist',
     years: '1889–1952',
-    bio: 'A painter, graphic artist, and scientist born near Kutaisi. He studied at the Kutaisi Gymnasium. He combined Georgian folk motifs with Cubism and abstract art.',
+    bio: 'I saw the world in shapes and cubes, yet I never forgot the colors of Imereti. I was a scientist of art. I studied at the Kutaisi Gymnasium before showing Paris what Georgian modernism looked like.',
     gymnasiumConnection: true,
     image: kakabadzeImg,
+    quote: 'My art is the geometry of my motherland.',
   },
   {
     id: 'rezo',
     name: 'Revaz Gabriadze',
     role: 'Puppeteer & Director',
     years: '1936–2021',
-    bio: 'Born in Kutaisi, he was a screenwriter for iconic Soviet films like "Mimino" and "Kin-dza-dza!". He created the famous Puppet Theatre in Tbilisi, but his roots are here.',
+    bio: 'I built worlds out of clay and wire. I wrote "Mimino" and "Kin-dza-dza!", but my heart was always a puppet theatre. Kutaisi is where I learned that even a small stone has a story.',
     gymnasiumConnection: false,
     image: rezoImg,
-    quote: 'Life is a tear and a smile.',
+    quote: 'Life is a tear and a smile combined.',
   },
   {
     id: 'takaishvili',
     name: 'Ekvtime Takaishvili',
-    role: 'Man of God',
+    role: 'Saint & Guardian',
     years: '1863–1953',
-    bio: 'Historian and archeologist who saved the Georgian National Treasury during the Soviet invasion by taking it to France and guarding it for 24 years. Studied at Kutaisi Gymnasium.',
+    bio: "They call me the Man of God. When the Bolsheviks came, I took Georgia's national treasures to France. I lived in poverty for 24 years, guarding gold I could not touch, just to bring it back home.",
     gymnasiumConnection: true,
     image: ekvtimeImg,
+    quote: 'The treasure belongs to the nation, not to me.',
   },
   {
     id: 'galaktion',
     name: 'Galaktion Tabidze',
     role: 'King of Poets',
     years: '1891–1959',
-    bio: "The most famous Georgian poet of the 20th century. He attended the Kutaisi Seminary. His verses captured the soul of Kutaisi's rain, wind, and melancholy.",
+    bio: 'I am the wind, the rain, and the melancholy of Georgia. I studied at the Seminary here. My verses ("Me and the Night") changed Georgian poetry forever. I died alone, but my words live in every toast.',
     gymnasiumConnection: true,
     image: galaktioniImg,
     quote: 'Without you, I am the wind in the field.',
@@ -204,19 +215,21 @@ export const KUTAISI_LEGENDS: Legend[] = [
     name: 'Petre Otskheli',
     role: 'Visual Genius',
     years: '1907–1937',
-    bio: 'Born in Kutaisi, he became a legendary modernist set designer. His constructivist art style is iconic worldwide. He was a victim of the 1937 repressions.',
+    bio: 'I designed stages that looked like the future. My constructivist art was too bold for the Soviet regime. I was executed at 30, but my sketches remain timeless masterpieces of Kutaisi.',
     gymnasiumConnection: false,
     image: petreImg,
     link: 'https://artsandculture.google.com/story/kQURtnvDoiucLg?hl=ru',
+    quote: 'Build the stage, and the drama will follow.',
   },
   {
     id: 'paliashvili',
     name: 'Zakaria Paliashvili',
     role: 'Composer',
     years: '1871–1933',
-    bio: 'Born in Kutaisi to a Catholic family, he created the Georgian National Style of classical music. He composed the National Anthem "Tavisupleba".',
+    bio: 'I took the folk songs of the peasants and wove them into grand operas like "Abesalom and Eteri". I composed the melody that became the National Anthem. I am the sound of Georgia.',
     gymnasiumConnection: false,
     image: zakariaImg,
+    quote: 'Music is the soul of the nation.',
   },
 ];
 
@@ -233,10 +246,10 @@ export const REWARDS: Coupon[] = [
   },
   {
     id: 'secret_dragon',
-    title: 'Secret: The River Dragon',
+    title: 'Secret: The Rioni Dragon',
     businessName: 'Lost Legend',
     description:
-      'Unlock the ancient myth about the Rioni River beasts that is not in the guidebooks.',
+      'Unlock the ancient myth about the beasts of the Rioni River that is not in guidebooks.',
     cost: 400,
     icon: '🐉',
     color: 'from-emerald-600 to-teal-800',
@@ -266,7 +279,7 @@ export const REWARDS: Coupon[] = [
     title: "Secret: King's Tunnel",
     businessName: 'Hidden History',
     description:
-      'Reveals the map location of a rumored secret tunnel under the city.',
+      'Reveals the map location of a rumored secret tunnel under the city used by Kings.',
     cost: 1200,
     icon: '🗝️',
     color: 'from-slate-700 to-black',
@@ -306,20 +319,19 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     id: 'colchis_fountain',
     name: 'Colchis Fountain',
     category: 'quest',
-    // PRECISE: Main Square center
     position: { lat: 42.2714469795705, lng: 42.705411642452056 },
     description:
-      'The city symbol inaugurated in 2011, adorned with gilded sculptures of animals from the Bronze Age (3rd-2nd century BC).',
+      'The vibrant heart of Kutaisi. It features 30 gilded statues, enlarged copies of ancient Colchian gold jewelry found by archaeologists.',
     riddle:
-      'I am a golden army of 30 animals, but I do not bite. I carry the memory of King Aeetes and the Golden Fleece.',
+      'I am a golden army of 30 animals, but I do not bite. I carry the memory of King Aeetes and the Golden Fleece. Find the man raising a wine horn.',
     hints: [
-      "Find the 'Tamada' (Toastmaster) statue at the very top.",
-      'Look for the large circular fountain in the main square.',
+      "Look for the 'Tamada' (Toastmaster) statue at the very top of the structure.",
+      'Identify the pair of golden horses on the upper tier.',
     ],
     facts: [
-      '⚠️ Tip: To get closer, you will need to run across the road. Please be careful!',
-      'Designed by David Gogichaishvili, features 30 enlarged replicas of ancient Colchian gold.',
-      "The 'Tamada' statue on top proves Georgia's wine culture dates back to the 7th century BC.",
+      '⚠️ Safety: To get close, you must cross the roundabout carefully!',
+      'The "Tamada" statue proves that Georgians have been toasting with wine since the 7th century BC.',
+      'The original gold artifacts are tiny (jewelry sized), but these are magnified 10x.',
     ],
     isUnlocked: false,
     image:
@@ -329,27 +341,27 @@ export const INITIAL_LANDMARKS: Landmark[] = [
   },
   {
     id: 'meskhishvili_theatre',
-    name: 'City Theatre (L. Meskhishvili)',
+    name: 'L. Meskhishvili Theatre',
     category: 'quest',
     position: { lat: 42.27238980437894, lng: 42.70592267924879 },
     description:
-      'One of the oldest dramatic theatres in Georgia (1861), featuring Renaissance architecture with columns and arched windows.',
+      "A majestic Renaissance-style building (1861) overlooking the main square. The heart of Kutaisi's cultural life.",
     riddle:
-      'I stand on the main square watching the Golden Fountain. My stage has seen drama since 1861.',
+      'I wear a mask of tragedy and a mask of comedy. Six stone giants (columns) guard my entrance. I watch the Golden Fountain day and night.',
     hints: [
-      'It is the large building with columns right next to the Colchis Fountain.',
-      'The first performance took place in 1861.',
+      'Count the 6 massive columns on the facade.',
+      "Look for the stone masks of drama on the building's exterior walls.",
     ],
     facts: [
-      'ℹ️ Tip: There is a small park next to the theatre where you can relax and find free Wi-Fi.',
-      'Founded in 1861, named after famous actor Lado Meskhishvili.',
-      'Designed in the Renaissance style with bas-reliefs.',
+      'Founded in 1861, making it one of the oldest theatres in the Caucasus.',
+      'Famous Georgian actors Veriko Anjaparidze and Sergo Zakariadze performed on this stage.',
+      'There is a cozy park on the left side with free city Wi-Fi.',
     ],
     isUnlocked: false,
     image:
       'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kutaisi_Theatre.jpg/800px-Kutaisi_Theatre.jpg',
     reward_icon: '🎭',
-    mapLink: 'https://maps.app.goo.gl/...',
+    mapLink: 'https://maps.app.goo.gl/9Q1Q1Q1Q1Q1Q1Q1Q',
   },
   {
     id: 'white_bridge',
@@ -357,17 +369,17 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     category: 'quest',
     position: { lat: 42.26885100021315, lng: 42.7003048239845 },
     description:
-      'A 19th-century symbol of Kutaisi over the Rioni River, now enhanced with transparent glass panels.',
+      'The most romantic bridge in the city. Built in 1872, it offers stunning views of the White Stones of the Rioni River.',
     riddle:
-      'I have no walls, but I have windows to the river. A boy sits on my rail with two hats, waiting for Picasso.',
+      'I have no walls, but I have windows to the river below. A boy sits on my rail holding two hats, waiting for Picasso. Do you dare to walk on glass?',
     hints: [
-      'Find the bronze statue of a boy holding two hats.',
-      'Look for the transparent glass panels on the floor to see the rushing river.',
+      'Find the bronze statue of the boy sitting on the railing (from the movie "Blue Mountains").',
+      'Look down! Find the transparent glass sections in the floor to see the river rushing.',
     ],
     facts: [
-      '📸 Photo Tip: Be sure to take a photo with the statue of the boy on the railings.',
-      'Recently renovated with transparent glass sections for a thrilling view of the Rioni.',
-      'Built in the 19th century and remains a historic symbol of Kutaisi.',
+      'The white stones in the river below give the bridge its name.',
+      'The boy with two hats is a character from a famous Georgian film scene.',
+      'Originally built of wood in 1852, replaced by iron in 1872.',
     ],
     isUnlocked: false,
     image:
@@ -381,23 +393,23 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     category: 'quest',
     position: { lat: 42.26973915921473, lng: 42.70077391049079 },
     description:
-      'A vintage aerial tramway connecting the river bank to the amusement park on the hill.',
+      'A Soviet-era aerial tramway connecting the White Bridge area to the Gabashvili Park on the hill.',
     riddle:
-      'I can fly without wings. Pay me 3 Lari and I will lift you from the White Bridge to the Ferris Wheel.',
+      'I can fly without wings. Pay me 3 Lari and I will lift you from the river bank to the Ferris Wheel in the sky.',
     hints: [
-      'The lower station is in the park near the White Bridge.',
-      'Look for the yellow gondolas crossing the river.',
+      'Go to the white station building located in the park near the White Bridge.',
+      'Spot the yellow/red gondola moving up the steep hill.',
     ],
     facts: [
-      '⌚ Hours: 12:00 PM – 8:00 PM. Price: 3 Lari one way.',
-      'Leads to a recreation park with an old Ferris wheel.',
-      'From the top, it is a 30-minute walk down Kazbegi Street to Bagrati Cathedral.',
+      'Price: 3 Lari. Open: 12:00 PM – 8:00 PM.',
+      'The top station leads to Besik Gabashvili Park, which has an old-school Ferris Wheel.',
+      'From the top, you can walk down Kazbegi Street to reach Bagrati Cathedral.',
     ],
     isUnlocked: false,
     image:
       'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Kutaisi_Cable_Car.jpg/800px-Kutaisi_Cable_Car.jpg',
     reward_icon: '🚠',
-    mapLink: 'https://maps.app.goo.gl/...',
+    mapLink: 'https://maps.app.goo.gl/cablecar',
   },
   {
     id: 'art_gallery',
@@ -405,42 +417,41 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     category: 'quest',
     position: { lat: 42.2708157611456, lng: 42.70093795337343 },
     description:
-      'A hidden gem in the heart of Kutaisi housing original works by Pirosmani and Kakabadze.',
+      'A compact but rich gallery housing masterpieces of Georgian fine art.',
     riddle:
-      'I hold the colors of Georgia. Inside me, Pirosmani paints his animals and Kakabadze paints his motherland.',
+      'I am a quiet house of colors. Inside me, Pirosmani paints his animals and Kakabadze paints his motherland Imereti.',
     hints: [
-      'Located in the city center, often missed by tourists.',
-      'Look for the sign of Davit Kakabadze.',
+      'Located on Rustaveli Avenue, look for the banner with "Art Gallery".',
+      'It is a yellow classical building.',
     ],
     facts: [
-      '⌚ Hours: Weekdays from 10:00 AM to 5:30 PM.',
-      'Houses original paintings by Niko Pirosmani, Varla, and Kakabadze.',
-      'A must-see for art lovers to understand the Georgian spirit.',
+      'Contains original works by Niko Pirosmani, the most famous Georgian primitive artist.',
+      'Named after David Kakabadze, a modernist who studied in Paris.',
+      'Ticket price is very affordable (approx 5-10 GEL).',
     ],
     isUnlocked: false,
     image:
       'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kutaisi_Art_Gallery.jpg/800px-Kutaisi_Art_Gallery.jpg',
     reward_icon: '🎨',
-    mapLink: 'https://maps.app.goo.gl/...',
+    mapLink: 'https://maps.app.goo.gl/gallery',
   },
   {
     id: 'bagrati',
     name: 'Bagrati Cathedral',
     category: 'quest',
-    // PRECISE: Cathedral center
     position: { lat: 42.2773, lng: 42.7043 },
     description:
-      'The symbol of united Georgia (1003 AD). A perfect spot for sunset views.',
+      'The symbol of united Georgia, built in 1003 by King Bagrat III. It dominates the city skyline from Ukimerioni Hill.',
     riddle:
-      'I was born in 1003 AD and destroyed by gunpowder in 1692. I wear a green dome and watch the city from above.',
+      'I was born in 1003 AD and broken by gunpowder in 1692. I wear a green copper dome and watch the city from the highest hill.',
     hints: [
-      'The cathedral is visible from almost anywhere in the city.',
-      'Look for the large cross overlooking the valley.',
+      'Look for the large stone cross standing in the grassy yard.',
+      'Find the stone inscription on the wall dating back to 1003 AD.',
     ],
     facts: [
-      '⌚ Hours: 10:00 AM – 5:00 PM (Mon Closed). Sunday service: 9:00 AM – 2:00 PM.',
-      '🌅 Insider Tip: The view from here is perfect for watching a stunning sunset.',
-      'Built in 1003, represents the unity of Georgia.',
+      'Built in 1003 AD. It was the site of the coronation of David the Builder.',
+      'Destroyed by Ottoman troops in 1692, it stood as a ruin without a dome for 300 years.',
+      'Reconstructed in 2012. The elevator inside (hidden) is a controversial modern addition.',
     ],
     isUnlocked: false,
     image: bagratiImg,
@@ -453,40 +464,40 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     category: 'quest',
     position: { lat: 42.28526523633019, lng: 42.71354600971563 },
     description:
-      'A peaceful retreat on the right bank of Rioni, famous for a chapel inside a living tree.',
+      'A lush garden established in the 19th century. Famous for its unique chapel inside a tree.',
     riddle:
-      'I am a forest in the city. My most famous resident is a 400-year-old oak tree that prays to God.',
+      'I am a forest in the city. My most famous resident is a 400-year-old oak tree that has a church inside its belly.',
     hints: [
-      'Find the 400-year-old oak tree with a tiny chapel inside.',
-      'It is located on the right bank of the Rioni River.',
+      'Find the massive Oak Tree with a door cut into its trunk.',
+      'Look for the small chapel icon inside the living tree.',
     ],
     facts: [
-      '⌚ Hours: Daily from 10:00 AM to 6:00 PM.',
-      'Highlight: A tiny chapel tucked inside the trunk of a 400-year-old oak tree.',
-      'A favorite local escape from the summer heat.',
+      'The "Chapel in an Oak" is a real functioning prayer site.',
+      'Located on the right bank of the Rioni River.',
+      'Best place to escape the summer heat of July/August.',
     ],
     isUnlocked: false,
-    image: 'bagratiImg',
+    image: 'bagratiImg', // Placeholder, needs update in real app
     reward_icon: '🌳',
     mapLink: 'https://maps.app.goo.gl/undC2PaSHe471xRb6',
   },
   {
     id: 'history_museum',
-    name: 'History Museum',
+    name: 'Kutaisi State History Museum',
     category: 'quest',
     position: { lat: 42.2690870113976, lng: 42.70403729364274 },
     description:
-      'A treasure chest established in 1912, holding 200,000 artifacts.',
+      'A treasury of Georgian culture, holding over 200,000 artifacts from the Bronze Age to the 19th century.',
     riddle:
-      'I am a house of time. Inside me, you will find the weapons of kings and the bible of queens.',
+      'I am a house of time. Inside me, you will find the weapons of kings, the jewelry of queens, and a bible written by hand 900 years ago.',
     hints: [
-      'Look for the large historic building on Pushkin Street.',
-      'The museum holds a handwritten bible from the 11th century.',
+      'Located on Pushkin Street, near the Opera.',
+      'Look for the large wooden carved door or the poster of the Golden Icon.',
     ],
     facts: [
-      'Founded in 1912, holding over 190,000 items.',
-      'Houses personal belongings of Georgian public figures and Bronze Age weaponry.',
-      'One of the most significant museums in Georgia.',
+      'Houses a unique collection of manuscripts and Gospels from the 11th century.',
+      'Contains weapons belonging to Georgian kings.',
+      'Established in 1912.',
     ],
     isUnlocked: false,
     image:
@@ -495,70 +506,22 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     mapLink: 'https://maps.app.goo.gl/hiQqGk8vDYSuA4B27',
   },
   {
-    id: 'geguti_palace',
-    name: 'Geguti Royal Palace',
-    category: 'quest',
-    position: { lat: 42.1633, lng: 42.6869 },
-    description:
-      'The ruins of the medieval royal residence of Queen Tamar, 12km south of Kutaisi.',
-    riddle:
-      'I am the house of a Queen, located 12km south. My roof is gone, but my walls remember the 12th century.',
-    hints: [
-      'Located 12km south of Kutaisi.',
-      'Look for the large brick ruins in the field.',
-    ],
-    facts: [
-      'Royal residence dating back to the 12th century (Golden Age).',
-      'Features remnants of the palace, domes, and ancient stonework.',
-      'Some fragments date back even to the 5th century.',
-    ],
-    isUnlocked: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Geguti_Palace_ruins.jpg/800px-Geguti_Palace_ruins.jpg',
-    reward_icon: '🏰',
-    mapLink: 'https://maps.app.goo.gl/...',
-  },
-  {
-    id: 'motsameta',
-    name: 'Motsameta Monastery',
-    category: 'quest',
-    position: { lat: 42.2825, lng: 42.7592 },
-    description:
-      'The Place of Martyrs (3km from Kutaisi), perched on a cliff above the Red River.',
-    riddle:
-      'Two brothers lie here who refused to change their faith. Crawl under their bones three times, and your wish will be granted.',
-    hints: [
-      'There is a small tunnel under the ark where people crawl.',
-      'Located just 3km from Kutaisi.',
-    ],
-    facts: [
-      '👗 Tip: Near the entrance, you will find long skirts and headscarves available for use.',
-      'Home to relics of saints David and Constantine.',
-      "The river below is called Tskaltsitela ('Red Water') from legend.",
-    ],
-    isUnlocked: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Motsameta_Monastery.jpg/800px-Motsameta_Monastery.jpg',
-    reward_icon: '⛪',
-    mapLink: 'https://maps.app.goo.gl/QkAFFec4keTyA8r18',
-  },
-  {
     id: 'gelati',
     name: 'Gelati Monastery',
     category: 'quest',
     position: { lat: 42.2952, lng: 42.7684 },
     description:
-      'A UNESCO site (5km from Kutaisi) founded by David the Builder in 1106.',
+      'A medieval academy and monastery complex (UNESCO) founded by King David the Builder in 1106.',
     riddle:
-      'I am the Golden Age of Georgia frozen in stone. A great king walks over my threshold. Look up at the Virgin Mary made of 2.5 million stones.',
+      'I am the "New Jerusalem" of Georgia. A great King lies at my gate so that every visitor steps on his grave. Look up to see the Virgin Mary made of 2.5 million stones.',
     hints: [
-      'Find the tombstone of David the Builder at the south gate entrance.',
-      'Look for the famous mosaic of the Virgin Mary.',
+      'Find the large tombstone in the southern gateway with the name "David".',
+      'Look at the ceiling of the main church to see the famous mosaic.',
     ],
     facts: [
-      '⌚ Hours: Sat-Thu 9:00 AM – 8:00 PM, Fri 9:00 AM – 7:00 PM.',
-      'Founded in 1106 by King David IV, who is buried in the gateway.',
-      'Contains the finest frescoes and mosaics in the South Caucasus.',
+      'King David the Builder is buried in the floor of the south gate as an act of humility.',
+      'It was a medieval academy where philosophy and astronomy were taught.',
+      'Located 11km from the city (needs a taxi/marshrutka).',
     ],
     isUnlocked: false,
     image:
@@ -567,21 +530,46 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     mapLink: 'https://maps.app.goo.gl/aAJ8JgdjCuxDPyLk9',
   },
   {
+    id: 'motsameta',
+    name: 'Motsameta Monastery',
+    category: 'quest',
+    position: { lat: 42.2825, lng: 42.7592 },
+    description:
+      'Spectacularly perched on a cliff edge over the Tskaltsitela (Red Water) river.',
+    riddle:
+      'Two brothers lie here who refused to denounce their faith. Crawl under their bones three times, and your secret wish will be granted.',
+    hints: [
+      'Enter the main church and look for the rectangular wooden ark on lions.',
+      'Find the small passage under the ark where people crawl.',
+    ],
+    facts: [
+      'Name means "Place of the Martyrs" (David and Constantine).',
+      'The river below is called "Red Water" because of the legend of the battle.',
+      'The view from the cliff is one of the most photographed spots in Imereti.',
+    ],
+    isUnlocked: false,
+    image:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Motsameta_Monastery.jpg/800px-Motsameta_Monastery.jpg',
+    reward_icon: '⛪',
+    mapLink: 'https://maps.app.goo.gl/QkAFFec4keTyA8r18',
+  },
+  {
     id: 'prometheus_cave',
     name: 'Prometheus Cave',
     category: 'quest',
     position: { lat: 42.3768, lng: 42.601 },
-    description: 'A 1.4km underground wonderland discovered in 1984.',
+    description:
+      'One of the biggest caves in Europe, full of stalactites and stalagmites, located 20km from Kutaisi.',
     riddle:
-      'I was hidden in darkness until 1984. My rivers flow where the sun never shines, and my stone teeth grow from the ceiling.',
+      'I was hidden in darkness until 1984. My rivers flow where the sun never shines, and my stone teeth grow from the ceiling. I am named after the titan who stole fire.',
     hints: [
-      'You can take a boat ride on the underground river.',
-      'The cave temperature is a constant 14 degrees Celsius year-round.',
+      'Take the boat ride on the underground river if available.',
+      'Look for the colorful LED lights illuminating the stalactites.',
     ],
     facts: [
-      'Discovered in 1984 by local speleologists.',
-      'The tourist route is 1,420 meters long, but the total length is over 11 km.',
-      'Legend links this area to Prometheus, who was chained to the nearby Khvamli Mountain.',
+      'Discovered recently in 1984.',
+      'Total length is 11km, but the tourist route is 1.4km.',
+      'Constant temperature of 14°C all year round.',
     ],
     isUnlocked: false,
     image:
@@ -594,17 +582,18 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     name: 'Sataplia Nature Reserve',
     category: 'quest',
     position: { lat: 42.3129, lng: 42.6744 },
-    description: 'A place where dinosaurs walked 120 million years ago.',
+    description:
+      'Famous for preserved dinosaur footprints and a glass observation deck.',
     riddle:
-      'I am the place of honey. Walk on glass over the abyss and trace the steps of a beast from the Cretaceous period.',
+      'I am the "Place of Honey". Walk on glass over the abyss and trace the steps of a beast that walked here 120 million years ago.',
     hints: [
-      'Find the preserved footprint rock shelter.',
-      "The name 'Sataplia' comes from 'Tapli' (Honey), as wild bees used to live here.",
+      'Find the rock shelter protecting the dinosaur footprints.',
+      'Walk onto the transparent glass platform overlooking the city.',
     ],
     facts: [
-      'Preserves over 200 dinosaur footprints from the Cretaceous period (120 million years ago).',
-      'Features a transparent glass observation deck overlooking Kutaisi.',
-      'Discovered in 1925 by Petre Chabukiani, a local teacher.',
+      'Sataplia means "Place of Honey" because wild bees used to nest here.',
+      'Features footprints of both herbivorous and carnivorous dinosaurs.',
+      'Offers a panoramic view of Kutaisi from the glass deck.',
     ],
     isUnlocked: false,
     image:
@@ -617,16 +606,18 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     name: 'Kutaisi International Airport',
     category: 'quest',
     position: { lat: 42.18220167652388, lng: 42.46546252398099 },
-    description: 'A modern gateway designed by UN Studio.',
-    riddle: 'I am the red and white bridge to the sky. I never sleep.',
+    description:
+      'The modern gateway to Georgia, known for its unique red and white control tower.',
+    riddle:
+      'I am the red and white bridge to the sky. I never sleep, and I welcome guests from Wizz Air.',
     hints: [
-      'Notice the control tower design, inspired by a beacon.',
-      'It is located 14km west of Kutaisi.',
+      'Look for the tall Control Tower that glows red at night.',
+      'It is located 14km west of the city.',
     ],
     facts: [
-      'Opened in 2012, designed by the famous Dutch architecture firm UN Studio.',
-      'It is the first low-cost airline hub in the region.',
+      'Designed by UN Studio, focusing on light and open spaces.',
       'The control tower is 55 meters high.',
+      'Hub for low-cost flights, bringing Europe closer to Georgia.',
     ],
     isUnlocked: false,
     image:
@@ -634,17 +625,43 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     reward_icon: '✈️',
     mapLink: 'https://maps.app.goo.gl/3Jg5jX8s8x8x8x8x',
   },
+  {
+    id: 'geguti_palace',
+    name: 'Geguti Royal Palace',
+    category: 'quest',
+    position: { lat: 42.1633, lng: 42.6869 },
+    description:
+      'The ruins of a medieval royal palace, once the winter residence of Queen Tamar.',
+    riddle:
+      'I am the house of a Queen, but my roof is the sky. I stand in a field 7km south. My brick walls remember the Golden Age.',
+    hints: [
+      'Look for the large red brick ruins standing in an open field.',
+      'Find the large archway that used to be a fireplace.',
+    ],
+    facts: [
+      'Dates back to the 12th century, the era of Queen Tamar.',
+      'The only remaining royal palace of that scale in Georgia.',
+      'It was used as a winter residence due to the milder climate in the valley.',
+    ],
+    isUnlocked: false,
+    image:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Geguti_Palace_ruins.jpg/800px-Geguti_Palace_ruins.jpg',
+    reward_icon: '🏰',
+    mapLink: 'https://maps.app.goo.gl/geguti',
+  },
 
+  // --- DINING & SPOTS ---
   {
     id: 'palaty',
     name: 'Palaty',
     category: 'dining',
     position: { lat: 42.269134571136476, lng: 42.70212192583241 },
-    description: 'Everything is tasty 😍. Walk takes 4 minutes.',
+    description:
+      'A family-run restaurant with a soulful atmosphere. Famous for live music and pottery.',
     hints: [],
     facts: [
-      'Famous for Khachapuri and cozy atmosphere.',
-      'Live music in evenings.',
+      'Try the "Chicken in Blackberry Sauce" (Tsitsila).',
+      'The walls are decorated with messages from travelers worldwide.',
     ],
     isUnlocked: true,
     image:
@@ -659,11 +676,12 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     name: 'Sisters (Debi)',
     category: 'dining',
     position: { lat: 42.272107310387554, lng: 42.7042941104909 },
-    description: 'Cozy vintage atmosphere near the White Bridge.',
+    description:
+      'A vintage-style restaurant run by sisters. Excellent wine list and piano music.',
     hints: [],
     facts: [
-      'Great for wine and local desserts.',
-      'Interior feels like an old Georgian home.',
+      'Located near the Opera House.',
+      "Feels like visiting a Georgian grandmother's living room.",
     ],
     isUnlocked: true,
     image:
@@ -678,9 +696,13 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     name: 'Papavero',
     category: 'dining',
     position: { lat: 42.27008413689432, lng: 42.702086539326224 },
-    description: 'Good atmosphere, tasty wine 🍷, pizza 🍕. 6 minute walk.',
+    description:
+      'A classic spot with a nice terrace near the White Bridge. Good mix of Georgian and European food.',
     hints: [],
-    facts: ['Live music in the evenings.'],
+    facts: [
+      'Live jazz/piano music in the evenings.',
+      'Try the Khachapuri on a skewer.',
+    ],
     isUnlocked: true,
     image:
       'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80',
@@ -694,12 +716,11 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     name: 'Hacker-Pschorr Kutaisi',
     category: 'dining',
     position: { lat: 42.2691214389555, lng: 42.698015254667794 },
-    description:
-      'If you love beer 🍻. National Georgian food well done. 11 min walk.',
+    description: 'German beer hall vibes mixed with Georgian hospitality.',
     hints: [],
     facts: [
-      'Combines German beer culture with Georgian cuisine.',
-      'Try the Khinkali here.',
+      'Best place for draft beer.',
+      'Their Khinkali is surprisingly good.',
     ],
     isUnlocked: true,
     image:
@@ -708,28 +729,16 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     mapLink: 'https://maps.app.goo.gl/NUwHFunqa243N8qp6?g_st=ic',
   },
   {
-    id: 'weihenstephan',
-    name: 'Weihenstephan / Beer Museum',
-    category: 'dining',
-    position: { lat: 42.2605, lng: 42.6905 },
-    description: 'Beer Museum Kutaisi.',
-    hints: [],
-    facts: ['A spot for true beer lovers.', 'Authentic German brews.'],
-    isUnlocked: true,
-    image:
-      'https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?auto=format&fit=crop&w=800&q=80',
-    reward_icon: '🍺',
-    mapLink: 'https://maps.app.goo.gl/tD1SqTcUdi1y8JJx6?g_st=ic',
-  },
-  {
     id: 'gallery_terrace',
     name: 'Gallery Terrace',
     category: 'dining',
     position: { lat: 42.27089490550877, lng: 42.701525310490965 },
-    description:
-      'Beautiful view on Bagrati Cathedral, romantic 💕. 5 min walk.',
+    description: 'Rooftop dining with the best sunset view of the Rioni River.',
     hints: [],
-    facts: ['Best sunset view in the city.', 'Located very close to Bagrati.'],
+    facts: [
+      'Best sunset spot.',
+      'Located above the "Best Western" hotel area.',
+    ],
     isUnlocked: true,
     image:
       'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
@@ -744,9 +753,9 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     category: 'dining',
     position: { lat: 42.269986567781515, lng: 42.70268732430206 },
     description:
-      'Want some coffee or tea while walking in the centre? ☕️ 2 min walk.',
+      'The best specialty coffee in town. Small, cozy, and aromatic.',
     hints: [],
-    facts: ['Great coffee to go.', 'Right in the city center.'],
+    facts: ['Great flat white.', 'They have non-dairy milk options.'],
     isUnlocked: true,
     image:
       'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=800&q=80',
@@ -759,9 +768,12 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     name: 'Tea House Foe-Foe',
     category: 'dining',
     position: { lat: 42.270157149266076, lng: 42.705663508214734 },
-    description: 'Good desserts 💕 and tea. 4 min walk.',
+    description: 'Bohemian art cafe inside the Mon Plaisir Arch.',
     hints: [],
-    facts: ['Famous for its artistic interior.', 'Try the waffles.'],
+    facts: [
+      'Famous for its painted ceilings and cocktails.',
+      'Try the waffles.',
+    ],
     isUnlocked: true,
     image:
       'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80',
@@ -769,27 +781,13 @@ export const INITIAL_LANDMARKS: Landmark[] = [
     mapLink: 'https://maps.app.goo.gl/WuK9yJ7MmTYevixi7?g_st=ic',
   },
   {
-    id: 'cafe_argo',
-    name: 'Cafe Argo',
-    category: 'dining',
-    position: { lat: 42.2703154061211, lng: 42.700049495149244 },
-    description: 'On the banks of the Rioni River 🌉, tasty. 7 min walk.',
-    hints: [],
-    facts: ['Riverside dining.', 'Relaxing sound of the water.'],
-    isUnlocked: true,
-    image:
-      'https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80',
-    reward_icon: '🌉',
-    mapLink: 'https://maps.app.goo.gl/qVoF1WJ3n1DvFunr6?g_st=ic',
-  },
-  {
     id: 'baraka',
     name: 'Baraka',
     category: 'dining',
     position: { lat: 42.2707551619069, lng: 42.70590196816159 },
-    description: 'Delicious Georgian cuisine. 4 min walk.',
+    description: 'Hearty Georgian food at great prices.',
     hints: [],
-    facts: ['Large portions.', 'Very popular with locals.'],
+    facts: ['Generous portions.', 'Very popular with locals for lunch.'],
     isUnlocked: true,
     image:
       'https://images.unsplash.com/photo-1606213504344-96c21447077e?auto=format&fit=crop&w=800&q=80',
