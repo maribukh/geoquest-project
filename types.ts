@@ -5,6 +5,7 @@ export interface QuestResponse {
   points_earned: number;
   next_quest_hint: string;
   reward_icon?: string;
+  image?: string; // NEW: Image URL for the result card
 }
 
 export interface Coordinates {
@@ -46,6 +47,7 @@ export interface Coupon {
   cost: number;
   icon: string;
   color: string;
+  category: 'digital' | 'secret' | 'status'; // NEW CATEGORY
 }
 
 export interface Legend {
@@ -87,6 +89,7 @@ export enum AppView {
   PROFILE = 'PROFILE',
   SHOP = 'SHOP',
   LEADERBOARD = 'LEADERBOARD',
+  ADMIN = 'ADMIN', // NEW VIEW
 }
 
 export interface UserState {
@@ -97,6 +100,9 @@ export interface UserState {
   redeemedCoupons: string[]; // List of Coupon IDs
   unlockedHints: string[]; // List of Landmark IDs where hint was bought
   useOfflineVoice: boolean; // NEW: Preference for unlimited offline voice
+  createdAt?: any;
+  lastActive?: any;
+  isAdmin?: boolean; // NEW: Flag for admin users
 }
 
 export interface LeaderboardUser {
@@ -121,4 +127,15 @@ export interface ReviewData {
   userId?: string;
   emotion?: string; // NEW: Emotion label (e.g., "Amazing")
   photos?: string[]; // NEW: Array of base64 image strings
+}
+
+export interface BugReport {
+  id: string;
+  description: string;
+  timestamp: any;
+  status: 'open' | 'fixed';
+  userId: string;
+  userEmail?: string;
+  device?: string;
+  location?: Coordinates;
 }

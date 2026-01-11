@@ -1,5 +1,10 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [
+    {
+      "source": "/((?!api/|_next/|static/|favicon.ico).*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -20,5 +25,11 @@
         { "key": "Service-Worker-Allowed", "value": "/" }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/*.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
 }

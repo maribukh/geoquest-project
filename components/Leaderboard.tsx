@@ -1,621 +1,355 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LeaderboardUser } from '../types';
 import CommunityReviews from './CommunityReviews';
+import { db } from '../firebaseConfig';
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+} from 'firebase/firestore';
 
 interface LeaderboardProps {
-  users: LeaderboardUser[];
+  users: LeaderboardUser[]; // Kept for prop compatibility
   currentUserPoints: number;
   currentUserAvatar?: string;
 }
 
 interface ProcessedUser extends LeaderboardUser {
   displayPoints: number;
-  league: (typeof LEAGUE_DEFINITIONS)[0];
+  rank: number;
 }
 
-const LeagueIcons = {
-  crown: (
-    <svg className='w-5 h-5' viewBox='0 0 24 24' fill='currentColor'>
-      <path d='M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z' />
-      <path d='M5 16v3h14v-3H5z' />
-    </svg>
-  ),
-  lion: (
-    <svg className='w-5 h-5' viewBox='0 0 24 24' fill='currentColor'>
-      <path d='M12 2C8.7 2 6 4.7 6 8c0 1.9 1 3.6 2.5 4.5-1.1 1.2-1.8 2.8-1.8 4.5v3h10v-3c0-1.7-.7-3.3-1.8-4.5C17 11.6 18 9.9 18 8c0-3.3-2.7-6-6-6z' />
-      <circle cx='9' cy='8' r='1' />
-      <circle cx='15' cy='8' r='1' />
-      <path d='M12 18v3' />
-    </svg>
-  ),
-  compass: (
-    <svg className='w-5 h-5' viewBox='0 0 24 24' fill='currentColor'>
-      <circle
-        cx='12'
-        cy='12'
-        r='10'
-        stroke='currentColor'
-        strokeWidth='2'
-        fill='none'
-      />
-      <path d='M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z' />
-      <path d='M12 8v8M8 12h8' stroke='currentColor' strokeWidth='1' />
-    </svg>
-  ),
-  backpack: (
-    <svg className='w-5 h-5' viewBox='0 0 24 24' fill='currentColor'>
-      <path
-        d='M6 20v-8a6 6 0 0112 0v8'
-        stroke='currentColor'
-        strokeWidth='2'
-        fill='none'
-      />
-      <path d='M18 20H6' stroke='currentColor' strokeWidth='2' />
-      <path d='M9 11v3M15 11v3' stroke='currentColor' strokeWidth='1.5' />
-      <rect x='8' y='4' width='8' height='4' rx='1' fill='currentColor' />
-    </svg>
-  ),
-  rocket: (
-    <svg className='w-4 h-4' viewBox='0 0 24 24' fill='currentColor'>
-      <path d='M13.11 11.63L5 19.74V22h2.26l8.11-8.11M16 10l5-5-3-3-5 5-1 4 4 1z' />
-      <path d='M19 15l-2 6 6-2 1-4-4 1z' />
-      <circle cx='7.5' cy='7.5' r='0.5' fill='currentColor' />
-    </svg>
-  ),
-  star: (
-    <svg className='w-4 h-4' viewBox='0 0 24 24' fill='currentColor'>
-      <path d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' />
-    </svg>
-  ),
-  trophy: (
-    <svg className='w-5 h-5' viewBox='0 0 24 24' fill='currentColor'>
-      <path d='M6 3v2c0 2.8 2.2 5 5 5h2c2.8 0 5-2.2 5-5V3H6z' />
-      <path d='M8 21h8v-6c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v6z' />
-      <path d='M12 13v8M8 5h8' stroke='currentColor' strokeWidth='1.5' />
-    </svg>
-  ),
-  medal: (
-    <svg className='w-5 h-5' viewBox='0 0 24 24' fill='currentColor'>
-      <circle
-        cx='12'
-        cy='8'
-        r='6'
-        stroke='currentColor'
-        strokeWidth='2'
-        fill='none'
-      />
-      <path d='M12 14v8M8 18l2 2 4-4' stroke='currentColor' strokeWidth='1.5' />
-    </svg>
-  ),
-  flag: (
-    <svg className='w-3 h-3' viewBox='0 0 24 24' fill='currentColor'>
-      <path d='M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z' />
-      <line
-        x1='4'
-        y1='22'
-        x2='4'
-        y2='15'
-        stroke='currentColor'
-        strokeWidth='2'
-      />
-    </svg>
-  ),
-  flame: (
-    <svg className='w-4 h-4' viewBox='0 0 24 24' fill='currentColor'>
-      <path d='M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 001.5 4.5z' />
-    </svg>
-  ),
-  target: (
-    <svg className='w-4 h-4' viewBox='0 0 24 24' fill='currentColor'>
-      <circle
-        cx='12'
-        cy='12'
-        r='10'
-        stroke='currentColor'
-        strokeWidth='2'
-        fill='none'
-      />
-      <circle
-        cx='12'
-        cy='12'
-        r='6'
-        stroke='currentColor'
-        strokeWidth='2'
-        fill='none'
-      />
-      <circle cx='12' cy='12' r='2' fill='currentColor' />
-    </svg>
-  ),
-  shield: (
-    <svg className='w-4 h-4' viewBox='0 0 24 24' fill='currentColor'>
-      <path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' />
-    </svg>
-  ),
-};
+const UserAvatar: React.FC<{
+  user: ProcessedUser;
+  size?: 'small' | 'medium' | 'large' | 'xl';
+  className?: string;
+  borderColor?: string;
+}> = ({
+  user,
+  size = 'medium',
+  className = '',
+  borderColor = 'border-white',
+}) => {
+  const sizeClasses = {
+    small: 'w-10 h-10 text-base',
+    medium: 'w-12 h-12 text-lg',
+    large: 'w-16 h-16 text-2xl',
+    xl: 'w-20 h-20 text-3xl',
+  };
 
-const LEAGUE_DEFINITIONS = [
-  {
-    threshold: 2000,
-    name: 'King of Kutaisi',
-    icon: LeagueIcons.crown,
-    color: 'from-amber-400 to-yellow-600 via-orange-500',
-    border: 'border-yellow-400',
-    bg: 'bg-gradient-to-br from-amber-500/10 to-yellow-600/5',
-    glow: 'shadow-[0_0_30px_rgba(251,191,36,0.3)]',
-  },
-  {
-    threshold: 1000,
-    name: 'Local Legend',
-    icon: LeagueIcons.lion,
-    color: 'from-emerald-400 to-teal-600 via-green-500',
-    border: 'border-emerald-400',
-    bg: 'bg-gradient-to-br from-emerald-500/10 to-teal-600/5',
-    glow: 'shadow-[0_0_25px_rgba(52,211,153,0.25)]',
-  },
-  {
-    threshold: 500,
-    name: 'City Scout',
-    icon: LeagueIcons.compass,
-    color: 'from-blue-400 to-indigo-600 via-purple-500',
-    border: 'border-blue-400',
-    bg: 'bg-gradient-to-br from-blue-500/10 to-indigo-600/5',
-    glow: 'shadow-[0_0_20px_rgba(96,165,250,0.2)]',
-  },
-  {
-    threshold: 0,
-    name: 'Backpacker',
-    icon: LeagueIcons.backpack,
-    color: 'from-slate-400 to-gray-600 via-slate-500',
-    border: 'border-slate-300',
-    bg: 'bg-gradient-to-br from-slate-500/10 to-gray-600/5',
-    glow: 'shadow-[0_0_15px_rgba(148,163,184,0.15)]',
-  },
-];
-
-const BADGE_ICONS: Record<string, React.ReactNode> = {
-  '🚀': LeagueIcons.rocket,
-  '⭐': LeagueIcons.star,
-  '🏆': LeagueIcons.trophy,
-  '🎯': LeagueIcons.target,
-  '🛡️': LeagueIcons.shield,
-  '🔥': LeagueIcons.flame,
-  '🏅': LeagueIcons.medal,
-};
-
-const getLeague = (points: number) => {
   return (
-    LEAGUE_DEFINITIONS.find((league) => points >= league.threshold) ||
-    LEAGUE_DEFINITIONS[3]
+    <div className={`relative ${sizeClasses[size]} ${className}`}>
+      <div
+        className={`w-full h-full rounded-full overflow-hidden border-[3px] ${borderColor} shadow-lg relative z-10 bg-slate-200`}
+      >
+        {user.avatar ? (
+          user.avatar.startsWith('http') ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className='w-full h-full object-cover'
+            />
+          ) : (
+            <div className='w-full h-full flex items-center justify-center bg-white'>
+              {user.avatar}
+            </div>
+          )
+        ) : (
+          <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-300 to-slate-400'>
+            <span className='font-bold text-white'>{user.name.charAt(0)}</span>
+          </div>
+        )}
+      </div>
+      {user.flag && (
+        <div className='absolute -bottom-1 -right-1 z-20 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 text-[10px]'>
+          {user.flag}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Podium: React.FC<{ top3: ProcessedUser[] }> = ({ top3 }) => {
+  const [first, second, third] = [
+    top3.find((u) => u.rank === 1),
+    top3.find((u) => u.rank === 2),
+    top3.find((u) => u.rank === 3),
+  ];
+
+  return (
+    <div className='flex justify-center items-end gap-2 sm:gap-4 mb-8 pt-4 px-4'>
+      {/* 2nd Place */}
+      <div className='flex flex-col items-center w-1/3 max-w-[100px]'>
+        {second && (
+          <>
+            <div className='mb-2 relative'>
+              <div className='absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm'>
+                #2
+              </div>
+              <UserAvatar
+                user={second}
+                size='large'
+                borderColor='border-slate-300'
+              />
+            </div>
+            <div className='w-full bg-gradient-to-b from-slate-200/50 to-slate-50/50 rounded-t-2xl p-2 pb-4 text-center border-t border-white/50 backdrop-blur-sm h-24 flex flex-col justify-start pt-3'>
+              <p className='text-xs font-bold text-slate-800 truncate w-full'>
+                {second.name}
+              </p>
+              <p className='text-[10px] font-bold text-slate-500'>
+                {second.displayPoints}
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* 1st Place */}
+      <div className='flex flex-col items-center w-1/3 max-w-[110px] -mx-2 z-10'>
+        {first && (
+          <>
+            <div className='mb-3 relative'>
+              <div className='absolute -top-6 left-1/2 -translate-x-1/2 text-3xl drop-shadow-md animate-bounce-slow'>
+                👑
+              </div>
+              <UserAvatar
+                user={first}
+                size='xl'
+                borderColor='border-yellow-400'
+                className='shadow-yellow-400/30 shadow-xl'
+              />
+            </div>
+            <div className='w-full bg-gradient-to-b from-yellow-100/60 to-amber-50/60 rounded-t-2xl p-2 pb-4 text-center border-t border-white/60 backdrop-blur-md h-32 flex flex-col justify-start pt-4 shadow-lg'>
+              <p className='text-sm font-black text-slate-900 truncate w-full'>
+                {first.name}
+              </p>
+              <p className='text-xs font-bold text-amber-600'>
+                {first.displayPoints} pts
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* 3rd Place */}
+      <div className='flex flex-col items-center w-1/3 max-w-[100px]'>
+        {third && (
+          <>
+            <div className='mb-2 relative'>
+              <div className='absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-200 text-orange-800 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm'>
+                #3
+              </div>
+              <UserAvatar
+                user={third}
+                size='large'
+                borderColor='border-orange-300'
+              />
+            </div>
+            <div className='w-full bg-gradient-to-b from-orange-100/40 to-orange-50/40 rounded-t-2xl p-2 pb-4 text-center border-t border-white/50 backdrop-blur-sm h-20 flex flex-col justify-start pt-3'>
+              <p className='text-xs font-bold text-slate-800 truncate w-full'>
+                {third.name}
+              </p>
+              <p className='text-[10px] font-bold text-slate-500'>
+                {third.displayPoints}
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 
 const Leaderboard: React.FC<LeaderboardProps> = ({
-  users,
   currentUserPoints,
   currentUserAvatar,
 }) => {
   const [timeframe, setTimeframe] = useState<'weekly' | 'all-time'>('weekly');
-  const [activeTab, setActiveTab] = useState<'global' | 'friends'>('global');
+  const [realUsers, setRealUsers] = useState<LeaderboardUser[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const processUsers = (): ProcessedUser[] => {
-    const allUsers: ProcessedUser[] = users.map((user) => ({
-      ...user,
-      displayPoints:
-        timeframe === 'weekly' ? Math.round(user.points * 0.4) : user.points,
-      league: getLeague(user.points),
-    }));
-
-    const currentUserData: ProcessedUser = {
-      id: 'current',
-      name: 'You',
-      points: currentUserPoints,
-      avatar: currentUserAvatar || '',
-      isCurrentUser: true,
-      flag: '🇬🇪',
-      title: 'Explorer',
-      badgeIcon: '🚀',
-      displayPoints:
-        timeframe === 'weekly'
-          ? Math.round(currentUserPoints * 0.4)
-          : currentUserPoints,
-      league: getLeague(currentUserPoints),
-    };
-
-    return [...allUsers, currentUserData].sort(
-      (a, b) => b.displayPoints - a.displayPoints
+  // FETCH REAL DATA
+  useEffect(() => {
+    const q = query(
+      collection(db, 'users'),
+      orderBy('points', 'desc'),
+      limit(50)
     );
-  };
 
-  const displayUsers = processUsers();
-  const top3 = displayUsers.slice(0, 3);
-  const others = displayUsers.slice(3);
-  const myRank = displayUsers.findIndex((u) => u.id === 'current') + 1;
-  const myLeague = getLeague(currentUserPoints);
-  const isUserInTop3 = top3.some((u) => u.isCurrentUser);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedUsers: LeaderboardUser[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        fetchedUsers.push({
+          id: doc.id,
+          name: data.displayName || 'Anonymous',
+          points: data.points || 0,
+          avatar: data.photoURL || '',
+          flag: '🇬🇪', // Can be customized later if we add country to profile
+        });
+      });
+      setRealUsers(fetchedUsers);
+      setLoading(false);
+    });
 
-  const UserAvatar: React.FC<{
-    user: ProcessedUser;
-    size?: 'small' | 'medium' | 'large' | 'xl';
-    showFlag?: boolean;
-    className?: string;
-  }> = ({ user, size = 'medium', showFlag = true, className = '' }) => {
-    const sizeClasses = {
-      small: 'w-8 h-8 md:w-10 md:h-10',
-      medium: 'w-12 h-12 md:w-14 md:h-14',
-      large: 'w-16 h-16 md:w-20 md:h-20',
-      xl: 'w-20 h-20 md:w-24 md:h-24',
-    };
+    return () => unsubscribe();
+  }, []);
 
+  const processedUsers: ProcessedUser[] = realUsers.map((u, index) => ({
+    ...u,
+    displayPoints: u.points,
+    rank: index + 1,
+  }));
+
+  const top3 = processedUsers.slice(0, 3);
+  const rest = processedUsers.slice(3);
+
+  // Mock calculation for current user if they aren't in the fetched top list
+  // In a real app, you'd fetch the specific user rank from backend function
+  const myRank = processedUsers.findIndex(
+    (u) => u.points === currentUserPoints
+  ); // Simplistic matching
+  const myDisplayRank = myRank !== -1 ? myRank + 1 : '99+';
+
+  if (loading) {
     return (
-      <div className={`relative ${sizeClasses[size]} ${className}`}>
-        <div
-          className={`w-full h-full rounded-xl md:rounded-2xl overflow-hidden border-2 md:border-3 ${user.league.border} shadow-md md:shadow-lg relative z-10 bg-gradient-to-br from-white to-slate-50 ${user.league.glow}`}
-        >
-          {user.avatar ? (
-            user.avatar.startsWith('http') ? (
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className='w-full h-full object-cover'
-              />
-            ) : (
-              <div className='w-full h-full flex items-center justify-center text-lg md:text-xl'>
-                {user.avatar}
+      <div className='flex items-center justify-center h-full bg-slate-50'>
+        <div className='animate-spin text-4xl text-emerald-500'>⏳</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className='h-full bg-[#f8fafc] flex flex-col relative'>
+      {/* --- HEADER --- */}
+      <div className='px-6 pt-6 pb-2 bg-white sticky top-0 z-20 shadow-sm'>
+        <div className='flex justify-between items-center mb-4'>
+          <h1 className='text-2xl font-black text-slate-900 tracking-tight'>
+            Leaderboard
+          </h1>
+          <div className='w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400'>
+            🏆
+          </div>
+        </div>
+
+        {/* Custom Tabs */}
+        <div className='bg-slate-100 p-1 rounded-xl flex relative mb-2'>
+          <div
+            className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-lg shadow-sm transition-transform duration-300 ease-spring ${
+              timeframe === 'all-time' ? 'translate-x-full left-1' : 'left-1'
+            }`}
+          />
+          <button
+            onClick={() => setTimeframe('weekly')}
+            className={`flex-1 py-2 text-xs font-bold z-10 transition-colors ${
+              timeframe === 'weekly' ? 'text-slate-800' : 'text-slate-400'
+            }`}
+          >
+            This Week
+          </button>
+          <button
+            onClick={() => setTimeframe('all-time')}
+            className={`flex-1 py-2 text-xs font-bold z-10 transition-colors ${
+              timeframe === 'all-time' ? 'text-slate-800' : 'text-slate-400'
+            }`}
+          >
+            All Time
+          </button>
+        </div>
+      </div>
+
+      {/* --- SCROLLABLE CONTENT --- */}
+      <div className='flex-1 overflow-y-auto pb-32 no-scrollbar'>
+        {/* Podium Section */}
+        <div className='bg-white rounded-b-[40px] shadow-sm mb-6 border-b border-slate-100'>
+          <Podium top3={top3} />
+        </div>
+
+        {/* The List */}
+        <div className='px-4 space-y-3'>
+          {rest.map((user) => (
+            <div
+              key={user.id}
+              className='flex items-center bg-white p-3 rounded-2xl shadow-sm border border-slate-100'
+            >
+              <span className='w-8 text-center text-slate-400 font-bold text-sm font-mono'>
+                #{user.rank}
+              </span>
+              <UserAvatar user={user} size='small' className='mx-3' />
+              <div className='flex-1 min-w-0'>
+                <h4 className='text-sm font-bold text-slate-800 truncate'>
+                  {user.name}
+                </h4>
+                <p className='text-[10px] text-slate-400 font-medium'>
+                  Explorer
+                </p>
               </div>
-            )
-          ) : (
-            <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200'>
-              <div className='w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-slate-300 to-slate-400 rounded-full flex items-center justify-center'>
-                <span className='text-sm md:text-lg font-bold text-white'>
-                  {user.name.charAt(0)}
+              <div className='bg-slate-50 px-3 py-1 rounded-lg'>
+                <span className='text-sm font-black text-slate-700'>
+                  {user.displayPoints}
                 </span>
               </div>
             </div>
-          )}
+          ))}
         </div>
 
-        {showFlag && user.flag && (
-          <div className='absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 z-20 w-4 h-4 md:w-6 md:h-6 bg-white rounded-full flex items-center justify-center shadow-sm md:shadow-lg border border-slate-200 md:border-2'>
-            <div className='text-[8px] md:text-xs font-bold text-slate-700'>
-              {user.flag}
-            </div>
-          </div>
-        )}
-
-        {user.badgeIcon && BADGE_ICONS[user.badgeIcon] && (
-          <div className='absolute -top-1 -right-1 md:-top-2 md:-right-2 z-20 w-5 h-5 md:w-7 md:h-7 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-sm md:shadow-lg'>
-            {BADGE_ICONS[user.badgeIcon]}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const PodiumCard: React.FC<{ user: ProcessedUser; position: 1 | 2 | 3 }> = ({
-    user,
-    position,
-  }) => {
-    const positionConfig = {
-      1: {
-        rankClass:
-          'w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-600 text-white shadow-lg',
-        containerClass: '-mt-4 md:-mt-8',
-        cardClass:
-          'bg-gradient-to-b from-white via-yellow-50/50 to-amber-50/30 border-yellow-300/50',
-        textClass: 'text-amber-600',
-        pointsSize: 'text-base md:text-lg',
-        rankSize: 'text-sm md:text-base',
-        glow: 'shadow-[0_10px_25px_rgba(251,191,36,0.3)] md:shadow-[0_20px_50px_rgba(251,191,36,0.4)]',
-        badge: LeagueIcons.crown,
-      },
-      2: {
-        rankClass:
-          'w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-slate-400 via-slate-500 to-slate-600 text-white shadow-md',
-        containerClass: '',
-        cardClass:
-          'bg-gradient-to-b from-white to-slate-50/50 border-slate-200',
-        textClass: 'text-slate-600',
-        pointsSize: 'text-sm md:text-md',
-        rankSize: 'text-xs md:text-sm',
-        glow: 'shadow-[0_5px_15px_rgba(148,163,184,0.2)] md:shadow-[0_10px_30px_rgba(148,163,184,0.2)]',
-        badge: LeagueIcons.medal,
-      },
-      3: {
-        rankClass:
-          'w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-amber-300 via-orange-400 to-amber-500 text-white shadow-md',
-        containerClass: '',
-        cardClass:
-          'bg-gradient-to-b from-white to-orange-50/50 border-orange-200',
-        textClass: 'text-orange-600',
-        pointsSize: 'text-sm md:text-md',
-        rankSize: 'text-xs md:text-sm',
-        glow: 'shadow-[0_5px_15px_rgba(251,146,60,0.2)] md:shadow-[0_10px_30px_rgba(251,146,60,0.2)]',
-        badge: LeagueIcons.star,
-      },
-    };
-
-    const config = positionConfig[position];
-
-    return (
-      <div className={`flex flex-col items-center ${config.containerClass}`}>
-        <div className='mb-2 md:mb-3 relative'>
-          <UserAvatar user={user} size={position === 1 ? 'xl' : 'large'} />
-          <div
-            className={`absolute -top-2 -left-2 md:-top-3 md:-left-3 rounded-full flex items-center justify-center font-black border-2 md:border-3 border-white z-30 ${config.rankClass} animate-pulse`}
-          >
-            {config.badge}
-          </div>
-          {position === 1 && (
-            <div className='absolute -inset-2 md:-inset-4 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-xl md:blur-2xl -z-10 animate-pulse' />
-          )}
-        </div>
-
-        <div
-          className={`w-full rounded-xl md:rounded-2xl p-3 md:p-4 text-center border md:border-2 backdrop-blur-sm ${config.glow} ${config.cardClass}`}
-        >
-          <div className='flex items-center justify-center gap-1 md:gap-2 mb-1 md:mb-2'>
-            <div className='w-3 h-3 md:w-4 md:h-4'>{user.league.icon}</div>
-            <span className='text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider truncate'>
-              {user.league.name}
-            </span>
-          </div>
-          <p className='font-bold md:font-black text-slate-900 truncate text-xs md:text-sm mb-1'>
-            {user.name}
-          </p>
-          <p
-            className={`font-bold md:font-black ${config.textClass} ${config.pointsSize}`}
-          >
-            {user.displayPoints.toLocaleString()}
-          </p>
-          <div className='text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 md:mt-1'>
-            points
-          </div>
+        {/* Stories Teaser */}
+        <div className='mt-8 px-6'>
+          <h3 className='text-xs font-black text-slate-400 uppercase tracking-widest mb-4'>
+            Community Stories
+          </h3>
+          <CommunityReviews />
         </div>
       </div>
-    );
-  };
 
-  const UserCard: React.FC<{ user: ProcessedUser; rank: number }> = ({
-    user,
-    rank,
-  }) => {
-    const isCurrentUser = user.isCurrentUser;
-
-    return (
-      <div
-        className={`group flex items-center p-2 md:p-4 rounded-lg md:rounded-2xl transition-all duration-300 active:scale-[0.98] md:hover:scale-[1.02] ${
-          isCurrentUser
-            ? 'bg-gradient-to-r from-emerald-50/80 to-teal-50/50 ring-2 md:ring-3 ring-emerald-400/30 shadow-md md:shadow-lg shadow-emerald-500/20'
-            : 'bg-white/80 md:hover:bg-white border border-slate-200/50 md:hover:border-slate-300 md:hover:shadow-xl'
-        } backdrop-blur-sm`}
-      >
-        <div
-          className={`w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center font-black text-sm md:text-lg mr-2 md:mr-4 ${
-            rank <= 3
-              ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-sm md:shadow-md'
-              : isCurrentUser
-              ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white'
-              : 'bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700'
-          }`}
-        >
-          {rank}
-        </div>
-
-        <div className='flex-1 flex items-center gap-2 md:gap-4 overflow-hidden'>
-          <UserAvatar
-            user={user}
-            size='small'
-            showFlag={false}
-            className='flex-shrink-0'
-          />
-
-          <div className='flex-1 min-w-0 overflow-hidden'>
-            <div className='flex items-center gap-1 md:gap-2 mb-0.5 md:mb-1'>
-              <h4
-                className={`font-semibold md:font-bold truncate text-xs md:text-sm ${
-                  isCurrentUser ? 'text-slate-900' : 'text-slate-800'
-                }`}
-              >
-                {user.name}
-              </h4>
-              {user.flag && (
-                <div className='text-[10px] md:text-xs font-bold bg-slate-100 px-1 md:px-1.5 py-0.5 rounded'>
-                  {user.flag}
+      {/* --- STICKY USER STATS (If viewing map/other tabs, this might be hidden, but good for Leaderboard view) --- */}
+      <div className='absolute bottom-24 left-4 right-4 z-30'>
+        <div className='bg-slate-900 text-white p-3 rounded-2xl shadow-2xl shadow-slate-900/30 flex items-center justify-between border border-white/10 backdrop-blur-xl'>
+          <div className='flex items-center gap-3'>
+            <div className='w-10 h-10 rounded-full border-2 border-emerald-500 overflow-hidden bg-slate-800'>
+              {currentUserAvatar ? (
+                <img
+                  src={currentUserAvatar}
+                  className='w-full h-full object-cover'
+                />
+              ) : (
+                <div className='flex items-center justify-center h-full'>
+                  👤
                 </div>
               )}
             </div>
-            <div className='flex items-center gap-1 md:gap-2'>
-              <div
-                className={`w-3 h-3 md:w-4 md:h-4 ${
-                  isCurrentUser ? 'text-emerald-500' : 'text-slate-400'
-                }`}
-              >
-                {user.league.icon}
-              </div>
-              <span
-                className={`text-[10px] md:text-xs font-medium truncate ${
-                  isCurrentUser ? 'text-slate-600' : 'text-slate-500'
-                }`}
-              >
-                {user.league.name}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className='text-right ml-2 md:ml-4'>
-          <div
-            className={`font-bold md:font-black ${
-              isCurrentUser
-                ? 'text-slate-900 text-sm md:text-xl'
-                : 'text-slate-800 text-xs md:text-lg'
-            }`}
-          >
-            {user.displayPoints.toLocaleString()}
-          </div>
-          <div className='text-[6px] md:text-[10px] font-bold text-amber-500 uppercase tracking-wider'>
-            pts
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className='h-full bg-gradient-to-b from-slate-50 via-white to-slate-100 flex flex-col'>
-      <div className='pt-16 md:pt-20 pb-4 md:pb-6 px-4 md:px-6 bg-gradient-to-b from-white/95 to-white/80 backdrop-blur-lg border-b border-slate-200/30 sticky top-0 z-20'>
-        <div className='flex justify-between items-start md:items-center mb-4 md:mb-6'>
-          <div className='flex-1'>
-            <h1 className='text-xl md:text-2xl font-black text-slate-900 tracking-tight'>
-              Global Rank
-            </h1>
-            <p className='text-xs md:text-sm text-slate-500 font-medium mt-0.5 md:mt-1'>
-              Compete with travelers worldwide
-            </p>
-          </div>
-          <div
-            className={`flex items-center gap-2 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl bg-gradient-to-r ${myLeague.color} text-white shadow-lg md:shadow-xl ml-2`}
-          >
-            <div className='w-4 h-4 md:w-6 md:h-6'>{myLeague.icon}</div>
-            <span className='text-xs md:text-sm font-bold uppercase tracking-wider hidden md:inline'>
-              {myLeague.name}
-            </span>
-          </div>
-        </div>
-
-        <div className='flex gap-2 mb-4 md:mb-6'>
-          {(['global', 'friends'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 px-3 py-2.5 md:px-6 md:py-3 rounded-lg md:rounded-xl font-bold text-xs md:text-sm transition-all duration-300 ${
-                activeTab === tab
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md md:shadow-lg shadow-blue-500/25'
-                  : 'bg-white/80 text-slate-600 active:bg-white active:shadow-sm border border-slate-200'
-              }`}
-            >
-              {tab === 'global' ? '🌍 Global' : '👥 Friends'}
-            </button>
-          ))}
-        </div>
-
-        <div className='bg-slate-100/80 p-1 md:p-1.5 rounded-lg md:rounded-2xl flex relative backdrop-blur-sm border border-slate-200/50'>
-          {(['weekly', 'all-time'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setTimeframe(tab)}
-              className={`flex-1 py-2 md:py-3 px-1 md:px-2 text-xs md:text-sm font-bold rounded-lg md:rounded-xl transition-all duration-300 relative z-10 ${
-                timeframe === tab
-                  ? 'text-slate-900'
-                  : 'text-slate-500 active:text-slate-700'
-              }`}
-            >
-              {tab === 'weekly' ? 'Week' : 'All Time'}
-            </button>
-          ))}
-          <div
-            className={`absolute top-1 bottom-1 md:top-1.5 md:bottom-1.5 w-1/2 bg-white rounded-lg md:rounded-xl transition-transform duration-500 shadow-sm md:shadow-md ${
-              timeframe === 'all-time' ? 'translate-x-full' : 'translate-x-0'
-            }`}
-          />
-        </div>
-      </div>
-
-      <div className='flex-1 overflow-y-auto scroll-smooth px-3 md:px-4 pt-4 md:pt-6 pb-32 md:pb-40'>
-        {activeTab === 'global' && (
-          <>
-            <div className='grid grid-cols-3 gap-2 md:gap-6 mb-6 md:mb-12 items-end px-1 md:px-2'>
-              {top3[1] && <PodiumCard user={top3[1]} position={2} />}
-              {top3[0] && <PodiumCard user={top3[0]} position={1} />}
-              {top3[2] && <PodiumCard user={top3[2]} position={3} />}
-            </div>
-
-            <div className='space-y-2 md:space-y-3 mb-8 md:mb-10'>
-              {others.map((user, index) => (
-                <UserCard key={user.id} user={user} rank={index + 4} />
-              ))}
-            </div>
-
-            <div className='mb-6'>
-              <div className='flex items-center justify-between mb-4 md:mb-6 px-1 md:px-2'>
-                <h2 className='text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-1 md:gap-2'>
-                  <div className='w-4 h-4 md:w-5 md:h-5 text-slate-400'>
-                    {LeagueIcons.star}
-                  </div>
-                  <span className='hidden md:inline'>Traveler Stories</span>
-                  <span className='md:hidden'>Stories</span>
-                </h2>
-                <div className='text-xs text-slate-400 font-medium bg-slate-100/50 px-2 py-1 md:px-3 md:py-1.5 rounded'>
-                  Recent
-                </div>
-              </div>
-              <CommunityReviews />
-            </div>
-          </>
-        )}
-
-        {activeTab === 'friends' && (
-          <div className='py-8 md:py-10 text-center px-4'>
-            <div className='w-16 h-16 md:w-24 md:h-24 mx-auto mb-4 md:mb-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-xl md:rounded-2xl flex items-center justify-center'>
-              <div className='w-8 h-8 md:w-12 md:h-12 text-blue-400'>
-                {LeagueIcons.compass}
-              </div>
-            </div>
-            <h3 className='text-base md:text-lg font-bold text-slate-800 mb-2'>
-              Coming Soon!
-            </h3>
-            <p className='text-xs md:text-sm text-slate-500'>
-              Challenge your friends
-            </p>
-          </div>
-        )}
-      </div>
-
-      {!isUserInTop3 && (
-        <div className='fixed bottom-4 md:bottom-6 left-4 right-4 md:left-1/2 md:transform md:-translate-x-1/2 z-30 md:w-[95%] md:max-w-md'>
-          <div className='bg-gradient-to-r from-slate-900/95 to-slate-800/95 text-white p-3 md:p-5 rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl flex items-center border border-white/10 backdrop-blur-xl'>
-            <div
-              className={`w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center font-black text-base md:text-xl mr-2 md:mr-4 ${
-                myRank <= 10
-                  ? 'bg-gradient-to-br from-amber-500 to-orange-600'
-                  : 'bg-gradient-to-br from-emerald-500 to-teal-600'
-              } shadow-md md:shadow-lg`}
-            >
-              {myRank}
-            </div>
-
-            <div className='flex-1 min-w-0'>
-              <div className='flex items-center gap-2 md:gap-3 mb-0.5 md:mb-1'>
-                <span className='font-bold text-white text-xs md:text-sm truncate'>
-                  Your Rank
-                </span>
-                <div className='flex items-center gap-1 px-1.5 py-0.5 md:px-2.5 md:py-1 bg-emerald-500/20 rounded-full flex-shrink-0'>
-                  <div className='w-2 h-2 md:w-3 md:h-3 text-emerald-300'>
-                    {myLeague.icon}
-                  </div>
-                  <span className='text-[10px] md:text-xs font-bold text-emerald-300 uppercase tracking-wider truncate max-w-[60px] md:max-w-none'>
-                    {myLeague.name}
-                  </span>
-                </div>
-              </div>
-              <p className='text-[10px] md:text-xs text-slate-300/80 truncate'>
-                Keep exploring to reach the top!
+            <div>
+              <p className='text-xs text-slate-400 font-bold uppercase'>
+                My Rank
+              </p>
+              <p className='text-lg font-black leading-none'>
+                #{myDisplayRank}
               </p>
             </div>
-
-            <div className='text-right ml-2'>
-              <div className='font-bold md:font-black text-white text-base md:text-xl'>
-                {currentUserPoints.toLocaleString()}
-              </div>
-              <div className='text-[8px] md:text-xs text-emerald-300/80 font-bold tracking-wider'>
-                Score
-              </div>
-            </div>
+          </div>
+          <div className='text-right'>
+            <p className='text-xs text-slate-400 font-bold uppercase'>Points</p>
+            <p className='text-lg font-black leading-none text-emerald-400'>
+              {currentUserPoints}
+            </p>
           </div>
         </div>
-      )}
+      </div>
 
-      <div className='fixed bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent z-10' />
+      <style>{`
+        .ease-spring {
+            transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes bounce-slow {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, -10px); }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 3s infinite ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };

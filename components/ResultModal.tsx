@@ -23,7 +23,7 @@ const ResultModal: React.FC<ResultModalProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [usingNative, setUsingNative] = useState(false);
-  const [audioError, setAudioError] = useState<string | null>(null); // Track specific audio errors
+  const [audioError, setAudioError] = useState<string | null>(null);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
@@ -31,7 +31,6 @@ const ResultModal: React.FC<ResultModalProps> = ({
     const AudioCtor = window.AudioContext || (window as any).webkitAudioContext;
     const ctx = new AudioCtor();
     setAudioContext(ctx);
-
     return () => {
       if (ctx.state !== 'closed') ctx.close();
       stopNativeSpeech();
@@ -47,7 +46,7 @@ const ResultModal: React.FC<ResultModalProps> = ({
       await speakNative(textToSpeak);
     } catch (nativeError) {
       console.error('Native speech failed', nativeError);
-      setAudioError('Voice not supported on this device.');
+      setAudioError('Voice not supported.');
     } finally {
       setIsPlaying(false);
       setUsingNative(false);
@@ -58,7 +57,6 @@ const ResultModal: React.FC<ResultModalProps> = ({
     setAudioError(null);
 
     if (isPlaying) {
-      // Stop whatever is playing
       if (usingNative) {
         stopNativeSpeech();
         setIsPlaying(false);
@@ -72,7 +70,6 @@ const ResultModal: React.FC<ResultModalProps> = ({
       return;
     }
 
-    // Force Offline Mode check
     if (forceOffline) {
       playNative();
       return;
@@ -81,11 +78,8 @@ const ResultModal: React.FC<ResultModalProps> = ({
     setIsLoadingAudio(true);
 
     try {
-      // --- 1. TRY AI AUDIO FIRST ---
       if (!audioContext) throw new Error('No Audio Context');
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
-      }
+      if (audioContext.state === 'suspended') await audioContext.resume();
 
       const base64Data = await generateAudioGuide(
         result.place_name,
@@ -105,8 +99,7 @@ const ResultModal: React.FC<ResultModalProps> = ({
       setUsingNative(false);
     } catch (e: any) {
       console.warn('AI Audio failed:', e.message);
-      // Show manual button for iOS compatibility
-      setAudioError('Limit Reached or Network Error.');
+      setAudioError('Network Error. Tap to read offline.');
       setIsPlaying(false);
     } finally {
       setIsLoadingAudio(false);
@@ -122,113 +115,142 @@ const ResultModal: React.FC<ResultModalProps> = ({
   };
 
   return (
-    <div className='fixed inset-0 z-[3000] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md animate-fadeIn'>
-      <div className='w-full max-w-sm bg-white rounded-[32px] overflow-hidden shadow-2xl relative'>
-        <div
-          className={`absolute top-0 left-0 right-0 h-1.5 ${
-            isSuccess
-              ? 'bg-gradient-to-r from-emerald-400 to-teal-500'
-              : 'bg-gray-300'
-          }`}
-        ></div>
+    <div className='fixed inset-0 z-[3000] flex items-end sm:items-center justify-center pointer-events-none'>
+      <div
+        className='absolute inset-0 bg-slate-900/60 backdrop-blur-md pointer-events-auto'
+        onClick={handleClose}
+      ></div>
 
-        <div className='pt-10 pb-8 px-8 text-center'>
+      {/* Main Card */}
+      <div className='pointer-events-auto w-full max-w-sm bg-white sm:rounded-[32px] rounded-t-[32px] overflow-hidden shadow-2xl relative animate-slide-up sm:mb-8'>
+        {/* HERO IMAGE SECTION */}
+        <div className='relative h-64 w-full bg-slate-200'>
+          {result.image ? (
+            <img
+              src={result.image}
+              className='w-full h-full object-cover'
+              alt={result.place_name}
+            />
+          ) : (
+            <div className='w-full h-full flex items-center justify-center bg-slate-100'>
+              <span className='text-4xl'>📸</span>
+            </div>
+          )}
+
+          {/* Gradient Overlay for Text */}
+          <div className='absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent'></div>
+
+          {/* Status Badge */}
           <div
-            className={`w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center text-4xl shadow-lg ${
+            className={`absolute top-4 left-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg ${
               isSuccess
-                ? 'bg-emerald-50 text-emerald-600'
-                : 'bg-slate-100 text-slate-400'
+                ? 'bg-emerald-500 text-white'
+                : 'bg-amber-500 text-white'
             }`}
           >
-            {isSuccess ? result.reward_icon || '🎉' : '🤔'}
+            {isSuccess ? 'Location Verified' : 'Searching...'}
           </div>
 
-          <h2 className='text-2xl font-extrabold text-slate-800 mb-3 tracking-tight leading-tight'>
-            {isSuccess ? result.place_name : 'Looking...'}
-          </h2>
+          {/* Floating Audio Button (Overlapping Image & Content) */}
+          <button
+            onClick={handleAudioTour}
+            disabled={isLoadingAudio}
+            className={`absolute -bottom-8 right-6 w-16 h-16 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 z-20 ${
+              isPlaying
+                ? 'bg-white border-4 border-emerald-500 text-emerald-600 scale-110'
+                : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
+            }`}
+          >
+            {isLoadingAudio ? (
+              <div className='w-6 h-6 border-2 border-white/50 border-t-white rounded-full animate-spin'></div>
+            ) : isPlaying ? (
+              <span className='text-2xl'>⏸</span>
+            ) : (
+              <span className='text-3xl ml-1'>▶</span>
+            )}
+          </button>
+        </div>
 
-          <div className='relative mb-6'>
-            <p className='text-slate-600 text-sm leading-relaxed font-medium'>
-              "{result.story}"
-            </p>
+        {/* CONTENT SECTION */}
+        <div className='px-8 pt-6 pb-8 bg-white relative z-10'>
+          {/* Title Block */}
+          <div className='mb-6 pr-16'>
+            <h2 className='text-3xl font-black text-slate-900 leading-none mb-2 font-serif tracking-tight'>
+              {result.place_name}
+            </h2>
+            {isSuccess && (
+              <div className='flex items-center gap-2'>
+                <span className='text-2xl'>{result.reward_icon}</span>
+                <span className='text-emerald-600 font-bold text-sm'>
+                  +{result.points_earned} XP
+                </span>
+              </div>
+            )}
           </div>
 
-          {!audioError ? (
-            <button
-              onClick={handleAudioTour}
-              disabled={isLoadingAudio}
-              className={`mx-auto mb-4 w-full flex items-center justify-center gap-3 px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all border-2
-                    ${
-                      isPlaying
-                        ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
-                        : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-400 hover:text-emerald-600 shadow-sm'
-                    }`}
-            >
-              {isLoadingAudio ? (
-                <span className='animate-spin text-lg'>⏳</span>
-              ) : isPlaying ? (
-                <>
-                  <span className='animate-pulse text-lg'>🔊</span>
-                  <span>
-                    {usingNative ? 'Stop Reading' : 'Stop Audio Tour'}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className='text-lg'>{forceOffline ? '🗣️' : '✨'}</span>
-                  <span>
-                    {forceOffline ? 'Read Aloud (Offline)' : 'Listen to Guide'}
-                  </span>
-                </>
-              )}
-            </button>
-          ) : (
-            <div className='mb-4'>
-              <p className='text-[10px] text-red-500 font-bold mb-2 uppercase'>
-                {audioError}
-              </p>
-              <button
-                onClick={playNative}
-                className='w-full bg-slate-100 text-slate-700 hover:bg-slate-200 py-3 rounded-2xl font-bold text-xs uppercase flex items-center justify-center gap-2'
-              >
-                <span>🗣️</span> Play Offline Voice
-              </button>
+          {/* Audio Status Text / Waveform Placeholder */}
+          {isPlaying && (
+            <div className='mb-4 flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100'>
+              <div className='flex gap-1 items-end h-4'>
+                <div className='w-1 bg-emerald-500 animate-wave h-2'></div>
+                <div
+                  className='w-1 bg-emerald-500 animate-wave h-4'
+                  style={{ animationDelay: '0.1s' }}
+                ></div>
+                <div
+                  className='w-1 bg-emerald-500 animate-wave h-3'
+                  style={{ animationDelay: '0.2s' }}
+                ></div>
+                <div
+                  className='w-1 bg-emerald-500 animate-wave h-2'
+                  style={{ animationDelay: '0.3s' }}
+                ></div>
+              </div>
+              <span className='text-xs font-bold uppercase tracking-wider'>
+                AI Guide Speaking...
+              </span>
             </div>
           )}
 
-          {isSuccess && (
-            <div className='bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-4 mb-6 border border-orange-100'>
-              <p className='text-[10px] uppercase tracking-widest text-orange-400 font-bold mb-1'>
-                Earned
-              </p>
-              <p className='text-3xl font-black text-slate-800'>
-                +{result.points_earned}{' '}
-                <span className='text-lg font-medium text-slate-400'>pts</span>
-              </p>
-            </div>
-          )}
-
-          <div className='bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6 text-left'>
-            <p className='text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2'>
-              Next Hint
-            </p>
-            <p className='text-sm font-semibold text-slate-700'>
-              {result.next_quest_hint}
-            </p>
+          {/* Story Text */}
+          <div className='prose prose-sm text-slate-600 leading-relaxed mb-6 font-medium'>
+            <p>"{result.story}"</p>
           </div>
 
+          {/* Footer / Next Step */}
+          <div className='bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-start gap-3'>
+            <div className='w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-sm shrink-0'>
+              🧭
+            </div>
+            <div>
+              <p className='text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1'>
+                Next Quest
+              </p>
+              <p className='text-xs font-bold text-slate-800'>
+                {result.next_quest_hint}
+              </p>
+            </div>
+          </div>
+
+          {/* Close Button */}
           <button
             onClick={handleClose}
-            className={`w-full py-4 rounded-2xl font-bold text-white shadow-xl transition-transform active:scale-95 ${
-              isSuccess
-                ? 'bg-slate-900 hover:bg-black'
-                : 'bg-slate-400 hover:bg-slate-500'
-            }`}
+            className='w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm shadow-lg hover:bg-black transition-colors'
           >
-            {isSuccess ? 'Collect Reward' : 'Try Again'}
+            {isSuccess ? 'Continue Journey' : 'Try Again'}
           </button>
         </div>
       </div>
+
+      <style>{`
+        @keyframes wave {
+            0%, 100% { height: 4px; }
+            50% { height: 16px; }
+        }
+        .animate-wave {
+            animation: wave 1s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };

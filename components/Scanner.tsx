@@ -24,13 +24,15 @@ const Scanner: React.FC<ScannerProps> = ({
     let stream: MediaStream | null = null;
     const startCamera = async () => {
       try {
-        // Mobile-optimized constraints
+        // Optimized constraints for iOS/Mobile
+        // 'environment' prefers the back camera
         const constraints = {
           audio: false,
           video: {
-            facingMode: 'environment', // Rear camera
-            width: { ideal: 1280 }, // Lower resolution for better stability
-            height: { ideal: 720 },
+            facingMode: 'environment',
+            // 4K ideal allows newer iPhones to select best lens, but fallback is handled
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
           },
         };
 
@@ -39,6 +41,7 @@ const Scanner: React.FC<ScannerProps> = ({
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           // Important for iOS: ensure video actually plays
+          // playsInline attribute is already on the tag, which is critical
           videoRef.current.onloadedmetadata = () => {
             setIsVideoReady(true);
             videoRef.current
@@ -46,10 +49,17 @@ const Scanner: React.FC<ScannerProps> = ({
               .catch((e) => console.error('Play error:', e));
           };
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Camera Error:', err);
-        // Don't show blocking error immediately, allow gallery upload
-        setIsVideoReady(false);
+        // iOS 13.4+ might throw NotAllowedError if user denied previously
+        if (err.name === 'NotAllowedError') {
+          setError(
+            'Camera access denied. Please enable it in Settings or use Upload.'
+          );
+        } else {
+          // Don't show blocking error immediately, allow gallery upload UI to persist
+          setIsVideoReady(false);
+        }
       }
     };
 
@@ -119,19 +129,35 @@ const Scanner: React.FC<ScannerProps> = ({
         <div className='w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-4'>
           <span className='text-3xl'>🚫</span>
         </div>
-        <p className='mb-6 font-bold text-center'>{error}</p>
-        <button
-          onClick={onClose}
-          className='px-8 py-3 bg-white text-slate-900 rounded-2xl font-bold'
-        >
-          Close
-        </button>
+        <p className='mb-6 font-bold text-center text-sm'>{error}</p>
+        <div className='flex gap-4'>
+          <button
+            onClick={openGallery}
+            className='px-6 py-3 bg-white text-slate-900 rounded-2xl font-bold text-sm'
+          >
+            Upload Photo
+          </button>
+          <button
+            onClick={onClose}
+            className='px-6 py-3 bg-slate-800 text-white rounded-2xl font-bold text-sm'
+          >
+            Close
+          </button>
+        </div>
+        {/* Hidden File Input for Error State */}
+        <input
+          type='file'
+          ref={fileInputRef}
+          accept='image/*'
+          className='hidden'
+          onChange={handleFileSelect}
+        />
       </div>
     );
   }
 
   return (
-    <div className='absolute inset-0 z-40 bg-black flex flex-col'>
+    <div className='absolute inset-0 z-40 bg-black flex flex-col h-[100dvh]'>
       <div className='relative flex-1 bg-black overflow-hidden'>
         {/* Video Element: PlaysInline is CRITICAL for iOS */}
         <video
@@ -145,15 +171,15 @@ const Scanner: React.FC<ScannerProps> = ({
         />
 
         {/* Fallback Message if camera denied/loading */}
-        {!isVideoReady && (
+        {!isVideoReady && !error && (
           <div className='absolute inset-0 flex items-center justify-center p-8 text-center'>
             <div>
               <div className='text-4xl mb-4'>📷</div>
               <p className='text-white/70 text-sm font-medium'>
-                Camera access not available.
+                Camera starting...
               </p>
               <p className='text-white/50 text-xs mt-2'>
-                Please use the Upload button below to take a photo.
+                If it takes too long, try uploading.
               </p>
             </div>
           </div>
@@ -191,19 +217,17 @@ const Scanner: React.FC<ScannerProps> = ({
           </div>
 
           {/* Top Info Bar */}
-          <div className='absolute top-8 left-4 right-4 flex justify-between items-start'>
+          <div className='absolute top-8 left-4 right-4 flex justify-between items-start pt-safe'>
             <div className='bg-black/40 backdrop-blur-sm border border-emerald-500/30 px-3 py-1 rounded text-xs font-mono text-emerald-400 uppercase tracking-widest'>
-              {isVideoReady ? 'SYS.ONLINE // READY' : 'CAM.OFFLINE'}
+              {isVideoReady ? 'SYS.ONLINE' : 'INIT...'}
             </div>
             <div className='bg-black/40 backdrop-blur-sm border border-emerald-500/30 px-3 py-1 rounded text-xs font-mono text-emerald-400'>
-              LAT: {userLocation.lat.toFixed(5)}
-              <br />
-              LNG: {userLocation.lng.toFixed(5)}
+              LAT: {userLocation.lat.toFixed(4)}
             </div>
           </div>
 
           {/* Bottom Status */}
-          <div className='absolute bottom-32 left-0 right-0 text-center'>
+          <div className='absolute bottom-32 left-0 right-0 text-center pb-safe'>
             <p
               className={`text-sm font-bold uppercase tracking-[0.2em] ${
                 isScanning ? 'text-emerald-300 animate-pulse' : 'text-white/70'
@@ -221,19 +245,18 @@ const Scanner: React.FC<ScannerProps> = ({
           type='file'
           ref={fileInputRef}
           accept='image/*'
-          capture='environment' // This tries to open the rear camera directly on mobile
           className='hidden'
           onChange={handleFileSelect}
         />
       </div>
 
       {/* Control Deck */}
-      <div className='h-32 bg-slate-900 border-t border-emerald-900/50 flex items-center justify-between px-10 relative z-50'>
+      <div className='h-32 bg-slate-900 border-t border-emerald-900/50 flex items-center justify-between px-10 relative z-50 pb-safe'>
         <button
           onClick={onClose}
           className='text-emerald-500/70 hover:text-emerald-400 font-mono text-xs uppercase tracking-widest border border-emerald-500/30 px-4 py-2 rounded'
         >
-          Abort
+          Back
         </button>
 
         {/* Shutter Button (Live Camera) */}
@@ -241,10 +264,10 @@ const Scanner: React.FC<ScannerProps> = ({
           <button
             onClick={handleCapture}
             disabled={isScanning}
-            className={`w-20 h-20 rounded-full border border-emerald-500/30 flex items-center justify-center transition-all duration-300 ${
+            className={`w-20 h-20 rounded-full border-4 border-white/20 flex items-center justify-center transition-all duration-300 ${
               isScanning
                 ? 'scale-95 opacity-50'
-                : 'active:scale-95 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]'
+                : 'active:scale-95 hover:border-emerald-400'
             }`}
           >
             <div

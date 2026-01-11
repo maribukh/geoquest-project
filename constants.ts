@@ -15,6 +15,9 @@ const ekvtimeImg = '/legends/ekvtime.jpg';
 const galaktioniImg = '/legends/galaktioni.jpg';
 const petreImg = '/legends/petre.jpg';
 const zakariaImg = '/legends/zaqari.webp';
+const colchisFountainImg = '/landmarks/colchisFountain.png';
+const meskhisgviliTheatreImg = '/landmarks/meskhisgviliTheatre.png';
+const botanicalGardenImg = '/landmarksbotanicalGarden.png/';
 
 export const MAP_CENTER = { lat: 42.2715, lng: 42.706 };
 export const DEFAULT_ZOOM = 16;
@@ -243,6 +246,7 @@ export const REWARDS: Coupon[] = [
     cost: 200,
     icon: '🥉',
     color: 'from-amber-600 to-yellow-800',
+    category: 'status',
   },
   {
     id: 'secret_dragon',
@@ -253,6 +257,7 @@ export const REWARDS: Coupon[] = [
     cost: 400,
     icon: '🐉',
     color: 'from-emerald-600 to-teal-800',
+    category: 'secret',
   },
   {
     id: 'souvenir_lion',
@@ -263,6 +268,7 @@ export const REWARDS: Coupon[] = [
     cost: 600,
     icon: '🦁',
     color: 'from-yellow-400 to-amber-500',
+    category: 'digital',
   },
   {
     id: 'badge_tamada',
@@ -273,6 +279,7 @@ export const REWARDS: Coupon[] = [
     cost: 1000,
     icon: '🍷',
     color: 'from-red-600 to-rose-900',
+    category: 'status',
   },
   {
     id: 'secret_tunnel',
@@ -283,6 +290,7 @@ export const REWARDS: Coupon[] = [
     cost: 1200,
     icon: '🗝️',
     color: 'from-slate-700 to-black',
+    category: 'secret',
   },
 ];
 
@@ -334,10 +342,33 @@ export const INITIAL_LANDMARKS: Landmark[] = [
       'The original gold artifacts are tiny (jewelry sized), but these are magnified 10x.',
     ],
     isUnlocked: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Kutaisi_Colchis_Fountain.jpg/800px-Kutaisi_Colchis_Fountain.jpg',
+    image: colchisFountainImg,
     reward_icon: '🦁',
     mapLink: 'https://maps.app.goo.gl/LQ9B1KTDJjdasUrcA',
+  },
+  {
+    id: 'central_garden',
+    name: 'Central Garden (Boulevard)',
+    category: 'quest',
+    position: { lat: 42.271495054185074, lng: 42.70362772883541 },
+    description:
+      "Once the dowry of Princess Darejan, this historic park has been the city's favorite gathering spot since 1820. A place of poets, revolutionaries, and first dates.",
+    riddle:
+      'I was a gift to a Princess, then a stage for revolutionaries. Four singing sisters stand within me frozen in stone. I am the green living room where the city gathers.',
+    hints: [
+      'Look for the statue of the four Ishkhneli sisters with a guitar.',
+      'It is the main park next to the Colchis Fountain.',
+    ],
+    facts: [
+      'Belonged to Princess Darejan, daughter of King Solomon I of Imereti.',
+      'In the 19th century, it was the main "Boulevard" for gymnasist dates and political debates.',
+      'Contains statues of the famous Ishkhneli sisters and poet Akaki Tsereteli.',
+    ],
+    isUnlocked: false,
+    image:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Kutaisi_Park.jpg/800px-Kutaisi_Park.jpg',
+    reward_icon: '🌳',
+    mapLink: 'https://maps.google.com/?q=42.271495,42.703628',
   },
   {
     id: 'meskhishvili_theatre',
@@ -358,8 +389,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
       'There is a cozy park on the left side with free city Wi-Fi.',
     ],
     isUnlocked: false,
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kutaisi_Theatre.jpg/800px-Kutaisi_Theatre.jpg',
+    image: meskhisgviliTheatreImg,
     reward_icon: '🎭',
     mapLink: 'https://maps.app.goo.gl/9Q1Q1Q1Q1Q1Q1Q1Q',
   },
@@ -477,7 +507,7 @@ export const INITIAL_LANDMARKS: Landmark[] = [
       'Best place to escape the summer heat of July/August.',
     ],
     isUnlocked: false,
-    image: 'bagratiImg', // Placeholder, needs update in real app
+    image: botanicalGardenImg,
     reward_icon: '🌳',
     mapLink: 'https://maps.app.goo.gl/undC2PaSHe471xRb6',
   },
@@ -800,7 +830,7 @@ export const SYSTEM_PROMPT = `
 Role: You are "GeoQuest AI", a personal guide and gamemaster for Kutaisi, Georgia.
 
 Capabilities:
-1. Vision: Analyze the provided image to identify if it is a famous Georgian landmark (Bagrati, White Bridge, Colchis Fountain, Gelati, Motsameta, Prometheus Cave, Sataplia, Okatse, Vani Museum).
+1. Vision: Analyze the provided image to identify if it is a famous Georgian landmark (Bagrati, White Bridge, Colchis Fountain, Gelati, Motsameta, Prometheus Cave, Sataplia, Okatse, Vani Museum, Central Garden).
 2. Gamification: If the user finds a location, congratulate them.
 3. Storytelling: Keep it VERY brief (2 sentences max) as the app now has a dedicated facts section.
 4. Concierge: If it's food, recommend a place like Palaty or Sisters.
